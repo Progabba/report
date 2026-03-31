@@ -268,7 +268,7 @@
       width: 210mm;
       min-height: 297mm;
       margin: 24px auto 0;
-      padding: 16mm 14mm;
+      padding: 12mm 10mm;
       box-shadow: 0 20px 40px rgba(0,0,0,0.35);
       border-radius: 8px;
     }
@@ -334,13 +334,13 @@
     }
 
     .print-room-name {
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 700;
       margin-bottom: 2px;
     }
 
     .print-room-note {
-      font-size: 12px;
+      font-size: 11px;
       color: #4b5563;
       white-space: pre-wrap;
       break-inside: avoid;
@@ -350,8 +350,8 @@
     .print-photos {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
-      padding: 12px;
+      gap: 8px;
+      padding: 10px;
     }
 
     .print-photo-item {
@@ -367,19 +367,19 @@
       display: block;
       width: 100%;
       height: auto;
-      max-height: 140mm;
+      max-height: 95mm;
       object-fit: contain;
       background: #f3f4f6;
-      padding: 4mm;
+      padding: 2.5mm;
       break-inside: avoid;
       page-break-inside: avoid;
     }
 
     .print-photo-caption {
-      font-size: 11px;
-      line-height: 1.4;
-      padding: 7px 8px;
-      min-height: 24px;
+      font-size: 10px;
+      line-height: 1.3;
+      padding: 5px 6px;
+      min-height: 18px;
       white-space: pre-wrap;
       break-inside: avoid;
       page-break-inside: avoid;
@@ -412,7 +412,7 @@
 
       .print-photo-item img {
         height: auto;
-        max-height: 320px;
+        max-height: 220px;
       }
     }
 
@@ -596,8 +596,8 @@
     };
 
     const STORAGE_KEY = 'photo_report_generator_v4';
-    const MAX_IMAGE_WIDTH = 1400;
-    const IMAGE_QUALITY = 0.82;
+    const MAX_IMAGE_WIDTH = 1200;
+    const IMAGE_QUALITY = 0.72;
 
     const els = {
       objectName: document.getElementById('objectName'),
@@ -1046,27 +1046,29 @@
 
       try {
         await waitForImages(clone);
-        await wait(300);
+        await wait(200);
 
         const opt = {
           margin: [6, 6, 6, 6],
           filename: `${sanitizeFileName(els.objectName.value)}.pdf`,
-          image: { type: 'jpeg', quality: 0.92 },
+          image: { type: 'jpeg', quality: 0.82 },
           html2canvas: {
-            scale: 1,
+            scale: 0.85,
             useCORS: true,
             backgroundColor: '#ffffff',
             logging: false,
             scrollX: 0,
             scrollY: 0,
             windowWidth: 794,
-            width: 794
+            width: 794,
+            height: clone.scrollHeight
           },
           jsPDF: {
             unit: 'mm',
             format: 'a4',
             orientation: 'portrait',
-            compress: true
+            compress: true,
+            precision: 12
           },
           pagebreak: {
             mode: ['css', 'legacy', 'avoid-all']
@@ -1076,7 +1078,7 @@
         await html2pdf().set(opt).from(clone).save();
       } catch (error) {
         console.warn('Ошибка сохранения PDF:', error);
-        alert('Не удалось сохранить PDF. Попробуйте уменьшить количество фото в одном отчете или открыть страницу в Chrome на телефоне.');
+        alert('Не удалось сохранить PDF. Я уже уменьшил качество и размер фото, но если отчет очень большой, попробуйте сделать его в 2 частях или открыть страницу в Chrome на телефоне.');
       } finally {
         clone.remove();
         els.downloadPdfBtn.disabled = false;

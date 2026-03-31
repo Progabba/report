@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Генератор фотоотчета по объекту</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: #121933;
+      --panel-2: #1a2345;
+      --text: #eef2ff;
+      --muted: #a8b1d1;
+      --accent: #5eead4;
+      --accent-2: #60a5fa;
+      --danger: #fb7185;
+      --border: rgba(255,255,255,0.1);
+      --shadow: 0 10px 30px rgba(0,0,0,0.35);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(96,165,250,0.18), transparent 28%),
+        radial-gradient(circle at top right, rgba(94,234,212,0.15), transparent 24%),
+        linear-gradient(180deg, #0a0f1f, #0f1730 35%, #111827 100%);
+      color: var(--text);
+    }
+
+    .container {
+      width: min(1200px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 24px 0 40px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 20px;
+      align-items: stretch;
+      margin-bottom: 24px;
+    }
+
+    .card {
+      background: rgba(18, 25, 51, 0.92);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(8px);
+    }
+
+    .hero-card {
+      padding: 26px;
+    }
+
+    h1, h2, h3, h4 { margin: 0; }
+
+    .title {
+      font-size: clamp(28px, 4vw, 42px);
+      line-height: 1.08;
+      margin-bottom: 12px;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.6;
+      max-width: 760px;
+    }
+
+    .badge-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+
+    .badge {
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: #dbeafe;
+      font-size: 14px;
+    }
+
+    .panel {
+      padding: 20px;
+    }
+
+    .panel h3 {
+      margin-bottom: 14px;
+      font-size: 20px;
+    }
+
+    .grid-2, .grid-3 {
+      display: grid;
+      gap: 14px;
+    }
+
+    .grid-2 { grid-template-columns: repeat(2, 1fr); }
+    .grid-3 { grid-template-columns: repeat(3, 1fr); }
+
+    label {
+      display: block;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 7px;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      border: 1px solid rgba(255,255,255,0.11);
+      border-radius: 12px;
+      background: rgba(255,255,255,0.05);
+      color: var(--text);
+      padding: 12px 14px;
+      font-size: 15px;
+      outline: none;
+      transition: 0.2s ease;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      border-color: rgba(94,234,212,0.55);
+      box-shadow: 0 0 0 3px rgba(94,234,212,0.12);
+    }
+
+    textarea {
+      min-height: 110px;
+      resize: vertical;
+      overflow-y: auto;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    button, .file-label {
+      border: 0;
+      border-radius: 14px;
+      padding: 12px 16px;
+      cursor: pointer;
+      font-size: 15px;
+      font-weight: bold;
+      transition: transform 0.15s ease, opacity 0.15s ease, box-shadow 0.2s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    button:hover, .file-label:hover { transform: translateY(-1px); }
+    button:active, .file-label:active { transform: translateY(0); }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #07111f;
+      box-shadow: 0 10px 24px rgba(96,165,250,0.25);
+    }
+
+    .btn-secondary {
+      background: rgba(255,255,255,0.07);
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .btn-danger {
+      background: rgba(251,113,133,0.14);
+      color: #ffd5dc;
+      border: 1px solid rgba(251,113,133,0.28);
+    }
+
+    .hidden-input {
+      display: none;
+    }
+
+    .section-title {
+      font-size: 24px;
+      margin: 10px 0 16px;
+    }
+
+    .rooms-list {
+      display: grid;
+      gap: 16px;
+      margin-top: 18px;
+    }
+
+    .room-card {
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 18px;
+      overflow: hidden;
+      background: rgba(255,255,255,0.03);
+    }
+
+    .room-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 18px;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      background: rgba(255,255,255,0.03);
+    }
+
+    .room-header-left {
+      min-width: 0;
+    }
+
+    .room-title {
+      font-size: 20px;
+      margin-bottom: 4px;
+      word-break: break-word;
+    }
+
+    .room-meta {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .room-body {
+      padding: 18px;
+    }
+
+    .photo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+      gap: 18px;
+    }
+
+    .photo-item {
+      border-radius: 16px;
+      overflow: hidden;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .photo-preview {
+      aspect-ratio: 4 / 3;
+      width: 100%;
+      object-fit: contain;
+      display: block;
+      background: #0b1225;
+      padding: 8px;
+      min-height: 420px;
+    }
+
+    .photo-caption {
+      padding: 10px 12px;
+      font-size: 14px;
+      color: #e6edff;
+      min-height: 56px;
+    }
+
+    .photo-tools {
+      display: flex;
+      gap: 8px;
+      padding: 0 12px 12px;
+      flex-wrap: wrap;
+    }
+
+    .photo-tools button {
+      padding: 9px 11px;
+      border-radius: 10px;
+      font-size: 13px;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    .empty {
+      padding: 22px;
+      text-align: center;
+      color: var(--muted);
+      border: 1px dashed rgba(255,255,255,0.14);
+      border-radius: 16px;
+      background: rgba(255,255,255,0.02);
+    }
+
+    .print-sheet {
+      background: white;
+      color: #111827;
+      width: 210mm;
+      min-height: 297mm;
+      margin: 24px auto 0;
+      padding: 16mm 14mm;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.35);
+      border-radius: 8px;
+    }
+
+    .print-title {
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    .print-subtitle {
+      text-align: center;
+      font-size: 14px;
+      color: #4b5563;
+      margin-bottom: 14px;
+    }
+
+    .print-cover {
+      border: 1px solid #d1d5db;
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 18px;
+    }
+
+    .print-cover-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .cover-field {
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 10px 12px;
+      background: #f9fafb;
+    }
+
+    .cover-label {
+      font-size: 11px;
+      color: #6b7280;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .cover-value {
+      font-size: 14px;
+      font-weight: 600;
+      word-break: break-word;
+    }
+
+    .print-room {
+      break-inside: avoid;
+      page-break-inside: avoid;
+      margin-bottom: 18px;
+      border: 1px solid #d1d5db;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .print-room-head {
+      padding: 10px 12px;
+      background: #eff6ff;
+      border-bottom: 1px solid #dbeafe;
+    }
+
+    .print-room-name {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+
+    .print-room-note {
+      font-size: 12px;
+      color: #4b5563;
+      white-space: pre-wrap;
+    }
+
+    .print-photos {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      padding: 12px;
+    }
+
+    .print-photo-item {
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      overflow: hidden;
+      break-inside: avoid;
+      page-break-inside: avoid;
+      background: white;
+    }
+
+    .print-photo-item img {
+      display: block;
+      width: 100%;
+      height: 140mm;
+      object-fit: contain;
+      background: #f3f4f6;
+      padding: 4mm;
+    }
+
+    .print-photo-caption {
+      font-size: 11px;
+      line-height: 1.4;
+      padding: 7px 8px;
+      min-height: 24px;
+      white-space: pre-wrap;
+    }
+
+    .footer-note {
+      margin-top: 16px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    @media (max-width: 980px) {
+      .hero, .grid-3, .grid-2 {
+        grid-template-columns: 1fr;
+      }
+      .print-sheet {
+        width: 100%;
+        min-height: auto;
+        border-radius: 18px;
+      }
+      .print-cover-grid, .print-photos {
+        grid-template-columns: 1fr;
+      }
+      .photo-grid {
+        grid-template-columns: 1fr;
+      }
+      .photo-preview {
+        min-height: 360px;
+      }
+      .print-photo-item img {
+        height: 320px;
+      }
+    }
+
+    @media print {
+      body {
+        background: white !important;
+        color: black !important;
+      }
+      .no-print,
+      .hero,
+      .panel,
+      .section-title,
+      #roomsContainer,
+      #addRoomBtn,
+      .footer-note {
+        display: none !important;
+      }
+      .container {
+        width: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      .print-sheet {
+        margin: 0;
+        box-shadow: none;
+        width: 100%;
+        min-height: auto;
+        border-radius: 0;
+        padding: 10mm;
+      }
+      @page {
+        size: A4;
+        margin: 10mm;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="hero no-print">
+      <div class="card hero-card">
+        <h1 class="title">Генератор фотоотчета по объекту</h1>
+        <p class="subtitle">
+          Добавляйте объект, помещения, фотографии и подписи, затем формируйте аккуратный фотоотчет и печатайте его в PDF.
+        </p>
+        
+          <div class="badge">Без сервера</div>
+          <div class="badge">Печать в PDF</div>
+          <div class="badge">Работает в браузере</div>
+        </div>
+      </div>
+
+      <div class="card panel">
+        <h3>Быстрые действия</h3>
+        <div class="actions">
+          <button class="btn-primary" id="printBtn">Печать / PDF</button>
+          <button class="btn-secondary" id="demoBtn">Заполнить пример</button>
+          <button class="btn-danger" id="clearBtn">Очистить всё</button>
+        </div>
+        <p class="footer-note">После нажатия «Печать / PDF» выберите «Сохранить как PDF».</p>
+      </div>
+    </div>
+
+    <div class="card panel no-print">
+      <h3>Данные объекта</h3>
+      <div class="grid-3">
+        <div>
+          <label for="objectName">Название объекта</label>
+          <input id="objectName" type="text" placeholder="Например: Капитальный ремонт общежития №6" />
+        </div>
+        <div>
+          <label for="objectAddress">Адрес</label>
+          <input id="objectAddress" type="text" placeholder="г. Казань, ул. ..." />
+        </div>
+        <div>
+          <label for="reportDate">Дата отчета</label>
+          <input id="reportDate" type="date" />
+        </div>
+      </div>
+      <div class="grid-2" style="margin-top: 14px;">
+        <div>
+          <label for="contractor">Исполнитель</label>
+          <input id="contractor" type="text" placeholder="ООО Альфа / Бригада / ФИО" />
+        </div>
+        <div>
+          <label for="customer">Заказчик</label>
+          <input id="customer" type="text" placeholder="Название заказчика" />
+        </div>
+      </div>
+      <div style="margin-top: 14px;">
+        <label for="generalComment">Общее примечание</label>
+        <textarea id="generalComment" placeholder="Например: Выполнен монтаж кабельных линий, установка подрозетников, сборка щита, подготовка к подключению."></textarea>
+      </div>
+    </div>
+
+    <div class="no-print" style="margin-top: 22px;">
+      <h2 class="section-title">Помещения и фотографии</h2>
+      <div id="roomsContainer" class="rooms-list"></div>
+
+      <div class="card panel" style="margin-top: 18px;">
+        <h3>Добавить помещение / зону</h3>
+        <div class="grid-2">
+          <div>
+            <label for="roomName">Название помещения</label>
+            <input id="roomName" type="text" placeholder="Например: Кухня, коридор, щитовая, кабинет 203" />
+          </div>
+          <div>
+            <label for="roomComment">Комментарий по помещению</label>
+            <input id="roomComment" type="text" placeholder="Например: Проложен кабель, собраны коробки" />
+          </div>
+        </div>
+        <div class="actions" style="margin-top: 18px; justify-content: center;">
+          <button class="btn-primary" id="addRoomBtn">Добавить помещение</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="printSheet" class="print-sheet">
+      <div class="print-title">ФОТООТЧЕТ ПО ОБЪЕКТУ</div>
+      
+
+      <div class="print-cover">
+        <div style="font-size: 18px; font-weight: 700; margin-bottom: 4px;" id="coverObjectName">Объект не указан</div>
+        <div style="font-size: 13px; color: #6b7280;" id="coverGeneralComment">Добавьте данные объекта и комментарий сверху.</div>
+        <div class="print-cover-grid">
+          <div class="cover-field">
+            <div class="cover-label">Адрес</div>
+            <div class="cover-value" id="coverAddress">—</div>
+          </div>
+          <div class="cover-field">
+            <div class="cover-label">Дата отчета</div>
+            <div class="cover-value" id="coverDate">—</div>
+          </div>
+          <div class="cover-field">
+            <div class="cover-label">Исполнитель</div>
+            <div class="cover-value" id="coverContractor">—</div>
+          </div>
+          <div class="cover-field">
+            <div class="cover-label">Заказчик</div>
+            <div class="cover-value" id="coverCustomer">—</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="printRooms"></div>    </div>
+
+    <div class="no-print" style="margin-top: 24px; text-align: center;">
+      <a
+        href="https://alfa-engineer.ru/webinars/categories/proektirovanie-sistem-elektrosnabzhenija/"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="file-label btn-primary"
+        style="min-width: 280px;"
+      >Бесплатный вебинар по проектированию электрики</a>
+    </div>
+  </div>
+  <script>
+    const state = {
+      rooms: []
+    };
+
+    const STORAGE_KEY = 'photo_report_generator_v2';
+    const MAX_IMAGE_WIDTH = 1600;
+    const IMAGE_QUALITY = 0.78;
+
+    const els = {
+      objectName: document.getElementById('objectName'),
+      objectAddress: document.getElementById('objectAddress'),
+      reportDate: document.getElementById('reportDate'),
+      contractor: document.getElementById('contractor'),
+      customer: document.getElementById('customer'),
+      generalComment: document.getElementById('generalComment'),
+      roomName: document.getElementById('roomName'),
+      roomComment: document.getElementById('roomComment'),
+      roomsContainer: document.getElementById('roomsContainer'),
+      printRooms: document.getElementById('printRooms'),
+      coverObjectName: document.getElementById('coverObjectName'),
+      coverGeneralComment: document.getElementById('coverGeneralComment'),
+      coverAddress: document.getElementById('coverAddress'),
+      coverDate: document.getElementById('coverDate'),
+      coverContractor: document.getElementById('coverContractor'),
+      coverCustomer: document.getElementById('coverCustomer'),
+      addRoomBtn: document.getElementById('addRoomBtn'),
+      printBtn: document.getElementById('printBtn'),
+      demoBtn: document.getElementById('demoBtn'),
+      clearBtn: document.getElementById('clearBtn')
+    };
+
+    function uid() {
+      return Math.random().toString(36).slice(2, 10);
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/\"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function formatDate(value) {
+      if (!value) return '—';
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return value;
+      return date.toLocaleDateString('ru-RU');
+    }
+
+    function buildExportData() {
+      return {
+        meta: {
+          objectName: els.objectName.value,
+          objectAddress: els.objectAddress.value,
+          reportDate: els.reportDate.value,
+          contractor: els.contractor.value,
+          customer: els.customer.value,
+          generalComment: els.generalComment.value
+        },
+        rooms: state.rooms
+      };
+    }
+
+    function applyImportedData(data) {
+      if (!data || typeof data !== 'object') return;
+      const meta = data.meta || {};
+      els.objectName.value = meta.objectName || '';
+      els.objectAddress.value = meta.objectAddress || '';
+      els.reportDate.value = meta.reportDate || '';
+      els.contractor.value = meta.contractor || '';
+      els.customer.value = meta.customer || '';
+      els.generalComment.value = meta.generalComment || '';
+      state.rooms = Array.isArray(data.rooms) ? data.rooms : [];
+      renderRooms();
+      renderPrint();
+      saveToStorage();
+    }
+
+    function saveToStorage() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(buildExportData()));
+      } catch (error) {
+        console.warn('Не удалось сохранить данные в localStorage:', error);
+      }
+    }
+
+    function loadFromStorage() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        const data = JSON.parse(raw);
+        applyImportedData(data);
+      } catch (error) {
+        console.warn('Не удалось загрузить данные из localStorage:', error);
+      }
+    }
+
+    function bindObjectInputs() {
+      [
+        els.objectName,
+        els.objectAddress,
+        els.reportDate,
+        els.contractor,
+        els.customer,
+        els.generalComment
+      ].forEach((input) => {
+        input.addEventListener('input', () => {
+          renderPrint();
+          saveToStorage();
+        });
+      });
+    }
+
+    function addUtilityButtons() {
+      const actionsRoot = document.querySelector('.hero .panel .actions');
+      if (!actionsRoot) return;
+
+      const exportBtn = document.createElement('button');
+      exportBtn.className = 'btn-secondary';
+      exportBtn.textContent = 'Экспорт JSON';
+      exportBtn.addEventListener('click', exportJson);
+
+      const importLabel = document.createElement('label');
+      importLabel.className = 'file-label btn-secondary';
+      importLabel.textContent = 'Импорт JSON';
+      const importInput = document.createElement('input');
+      importInput.type = 'file';
+      importInput.accept = '.json,application/json';
+      importInput.className = 'hidden-input';
+      importInput.addEventListener('change', (e) => {
+        importJson(e.target.files?.[0]);
+        e.target.value = '';
+      });
+      importLabel.appendChild(importInput);
+
+      actionsRoot.appendChild(exportBtn);
+      actionsRoot.appendChild(importLabel);
+    }
+
+    function exportJson() {
+      const data = buildExportData();
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const safeName = (els.objectName.value || 'fotootchet').trim().replace(/[^a-zA-Zа-яА-Я0-9_-]+/g, '_');
+      a.href = url;
+      a.download = `${safeName || 'fotootchet'}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function importJson(file) {
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const data = JSON.parse(reader.result);
+          applyImportedData(data);
+        } catch (error) {
+          alert('Не удалось прочитать JSON-файл.');
+        }
+      };
+      reader.readAsText(file, 'utf-8');
+    }
+
+    function addRoom(name, comment = '') {
+      const roomName = (name || '').trim();
+      if (!roomName) {
+        alert('Введите название помещения.');
+        return;
+      }
+      state.rooms.push({
+        id: uid(),
+        name: roomName,
+        comment: comment.trim(),
+        photos: []
+      });
+      els.roomName.value = '';
+      els.roomComment.value = '';
+      renderRooms();
+      renderPrint();
+      saveToStorage();
+    }
+
+    function removeRoom(roomId) {
+      const room = state.rooms.find(r => r.id === roomId);
+      if (!room) return;
+      const ok = confirm(`Удалить помещение "${room.name}"?`);
+      if (!ok) return;
+      state.rooms = state.rooms.filter(r => r.id !== roomId);
+      renderRooms();
+      renderPrint();
+      saveToStorage();
+    }
+
+    function updateRoomComment(roomId, value) {
+      const room = state.rooms.find(r => r.id === roomId);
+      if (!room) return;
+      room.comment = value;
+      renderPrint();
+      saveToStorage();
+    }
+
+    function updateRoomName(roomId, value) {
+      const room = state.rooms.find(r => r.id === roomId);
+      if (!room) return;
+      room.name = value.trim() || 'Без названия';
+      renderRooms();
+      renderPrint();
+      saveToStorage();
+    }
+
+    function compressImage(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const img = new Image();
+          img.onload = () => {
+            let { width, height } = img;
+            if (width > MAX_IMAGE_WIDTH) {
+              const ratio = MAX_IMAGE_WIDTH / width;
+              width = MAX_IMAGE_WIDTH;
+              height = Math.round(height * ratio);
+            }
+
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            const dataUrl = canvas.toDataURL('image/jpeg', IMAGE_QUALITY);
+            resolve(dataUrl);
+          };
+          img.onerror = () => reject(new Error('Ошибка загрузки изображения'));
+          img.src = reader.result;
+        };
+        reader.onerror = () => reject(new Error('Ошибка чтения файла'));
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function addPhotos(roomId, files) {
+      const room = state.rooms.find(r => r.id === roomId);
+      if (!room || !files?.length) return;
+
+      for (const file of Array.from(files)) {
+        if (!file.type.startsWith('image/')) continue;
+        try {
+          const compressedSrc = await compressImage(file);
+          room.photos.push({
+            id: uid(),
+            name: file.name,
+            src: compressedSrc,
+            caption: ''
+          });
+          renderRooms();
+          renderPrint();
+          saveToStorage();
+        } catch (error) {
+          console.warn('Ошибка обработки фото:', error);
+        }
+      }
+    }
+
+    function updatePhotoCaption(roomId, photoId, value) {
+      const room = state.rooms.find(r => r.id === roomId);
+      const photo = room?.photos.find(p => p.id === photoId);
+      if (!photo) return;
+      photo.caption = value;
+      renderRooms();
+      renderPrint();
+      saveToStorage();
+    }
+
+    function movePhoto(roomId, photoId, direction) {
+      const room = state.rooms.find(r => r.id === roomId);
+      if (!room) return;
+      const index = room.photos.findIndex(p => p.id === photoId);
+      if (index < 0) return;
+      const newIndex = index + direction;
+      if (newIndex < 0 || newIndex >= room.photos.length) return;
+      const [item] = room.photos.splice(index, 1);
+      room.photos.splice(newIndex, 0, item);
+      renderRooms();
+      renderPrint();
+      saveToStorage();
+    }
+
+    function removePhoto(roomId, photoId) {
+      const room = state.rooms.find(r => r.id === roomId);
+      if (!room) return;
+      room.photos = room.photos.filter(p => p.id !== photoId);
+      renderRooms();
+      renderPrint();
+      saveToStorage();
+    }
+
+    function renderRooms() {
+      if (!state.rooms.length) {
+        els.roomsContainer.innerHTML = '<div class="empty">Пока нет помещений. Добавьте первое помещение выше.</div>';
+        return;
+      }
+
+      els.roomsContainer.innerHTML = state.rooms.map((room, roomIndex) => `
+        <div class="card room-card">
+          <div class="room-header">
+            <div class="room-header-left">
+              <div class="room-title">${escapeHtml(room.name)}</div>
+              <div class="room-meta">Фотографий: ${room.photos.length} • Порядок: ${roomIndex + 1}</div>
+            </div>
+            <div class="actions" style="margin-top: 0;">
+              <button class="btn-danger" onclick="removeRoom('${room.id}')">Удалить помещение</button>
+            </div>
+          </div>
+          <div class="room-body">
+            <div class="grid-2">
+              <div>
+                <label>Название помещения</label>
+                <input type="text" value="${escapeHtml(room.name)}" oninput="updateRoomName('${room.id}', this.value)" />
+              </div>
+              <div>
+                <label>Комментарий по помещению</label>
+                <input type="text" value="${escapeHtml(room.comment)}" oninput="updateRoomComment('${room.id}', this.value)" />
+              </div>
+            </div>
+
+            <div class="actions">
+              <label class="file-label btn-primary">
+                Сделать фото
+                <input class="hidden-input" type="file" accept="image/*" capture="environment" onchange="handlePhotoInput('${room.id}', this.files); this.value='';" />
+              </label>
+              <label class="file-label btn-secondary">
+                Выбрать из галереи
+                <input class="hidden-input" type="file" accept="image/*" multiple onchange="handlePhotoInput('${room.id}', this.files); this.value='';" />
+              </label>
+            </div>
+
+            <div style="margin-top: 14px;">
+              ${room.photos.length ? `
+                <div class="photo-grid">
+                  ${room.photos.map((photo, photoIndex) => `
+                    <div class="photo-item">
+                      <img class="photo-preview" src="${photo.src}" alt="${escapeHtml(photo.name)}" />
+                      <div class="photo-caption">
+                        <label style="margin-bottom: 6px;">Подпись к фото ${photoIndex + 1}</label>
+                        <textarea style="min-height: 72px;" onchange="updatePhotoCaption('${room.id}', '${photo.id}', this.value)" onblur="updatePhotoCaption('${room.id}', '${photo.id}', this.value)">${escapeHtml(photo.caption)}</textarea>
+                      </div>
+                      <div class="photo-tools">
+                        <button class="btn-secondary" onclick="movePhoto('${room.id}', '${photo.id}', -1)">⬅ Выше</button>
+                        <button class="btn-secondary" onclick="movePhoto('${room.id}', '${photo.id}', 1)">Ниже ➡</button>
+                        <button class="btn-danger" onclick="removePhoto('${room.id}', '${photo.id}')">Удалить</button>
+                      </div>
+                    </div>
+                  `).join('')}
+                </div>
+              ` : '<div class="empty">В этом помещении пока нет фотографий.</div>'}
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderPrint() {
+      els.coverObjectName.textContent = els.objectName.value.trim() || 'Объект не указан';
+      els.coverGeneralComment.textContent = els.generalComment.value.trim() || 'Общее примечание не заполнено.';
+      els.coverAddress.textContent = els.objectAddress.value.trim() || '—';
+      els.coverDate.textContent = formatDate(els.reportDate.value);
+      els.coverContractor.textContent = els.contractor.value.trim() || '—';
+      els.coverCustomer.textContent = els.customer.value.trim() || '—';
+
+      if (!state.rooms.length) {
+        els.printRooms.innerHTML = `
+          <div style="border: 1px dashed #cbd5e1; border-radius: 10px; padding: 18px; text-align: center; color: #6b7280;">
+            Добавьте хотя бы одно помещение и фотографии, чтобы сформировать отчет.
+          </div>
+        `;
+        return;
+      }
+
+      els.printRooms.innerHTML = state.rooms.map((room) => `
+        <div class="print-room">
+          <div class="print-room-head">
+            <div class="print-room-name">${escapeHtml(room.name)}</div>
+            <div class="print-room-note">${escapeHtml(room.comment || 'Без комментария')}</div>
+          </div>
+          <div class="print-photos">
+            ${room.photos.length ? room.photos.map((photo) => `
+              <div class="print-photo-item">
+                <img src="${photo.src}" alt="${escapeHtml(photo.name)}" />
+                <div class="print-photo-caption">${escapeHtml(photo.caption || '')}</div>
+              </div>
+            `).join('') : '<div class="print-photo-caption">Фотографии не добавлены.</div>'}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function clearAll() {
+      const ok = confirm('Очистить все данные, помещения и фотографии?');
+      if (!ok) return;
+      state.rooms = [];
+      els.objectName.value = '';
+      els.objectAddress.value = '';
+      els.reportDate.value = '';
+      els.contractor.value = '';
+      els.customer.value = '';
+      els.generalComment.value = '';
+      els.roomName.value = '';
+      els.roomComment.value = '';
+      localStorage.removeItem(STORAGE_KEY);
+      renderRooms();
+      renderPrint();
+    }
+
+    function fillDemo() {
+      state.rooms = [
+        {
+          id: uid(),
+          name: 'Щитовая',
+          comment: 'Собран щит, выполнена маркировка линий.',
+          photos: []
+        },
+        {
+          id: uid(),
+          name: 'Коридор 1 этаж',
+          comment: 'Прокладка кабельной трассы в лотке, монтаж крепежа.',
+          photos: []
+        }
+      ];
+      els.objectName.value = 'Капитальный ремонт объекта';
+      els.objectAddress.value = 'г. Казань, ул. Примерная, д. 10';
+      els.reportDate.value = new Date().toISOString().slice(0, 10);
+      els.contractor.value = 'ООО «Альфа»';
+      els.customer.value = 'Заказчик объекта';
+      els.generalComment.value = 'Выполнены электромонтажные работы. Фотофиксация текущего этапа производства работ.';
+      renderRooms();
+      renderPrint();
+      saveToStorage();
+    }
+
+    function handlePhotoInput(roomId, files) {
+      addPhotos(roomId, files);
+    }
+
+    window.handlePhotoInput = handlePhotoInput;
+    window.removeRoom = removeRoom;
+    window.updateRoomComment = updateRoomComment;
+    window.updateRoomName = updateRoomName;
+    window.updatePhotoCaption = updatePhotoCaption;
+    window.movePhoto = movePhoto;
+    window.removePhoto = removePhoto;
+
+    els.addRoomBtn.addEventListener('click', () => addRoom(els.roomName.value, els.roomComment.value));
+    els.printBtn.addEventListener('click', () => window.print());
+    els.demoBtn.addEventListener('click', fillDemo);
+    els.clearBtn.addEventListener('click', clearAll);
+
+    bindObjectInputs();
+    addUtilityButtons();
+    loadFromStorage();
+    renderRooms();
+    renderPrint();
+  </script>
+</body>
+</html>

@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Генератор фотоотчета по объекту</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
     :root {
       --bg: #0b1020;
@@ -72,19 +73,11 @@
     }
 
     .badge-row {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-top: 18px;
+      display: none;
     }
 
     .badge {
-      padding: 8px 12px;
-      border-radius: 999px;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.08);
-      color: #dbeafe;
-      font-size: 14px;
+      display: none;
     }
 
     .panel {
@@ -302,12 +295,7 @@
       margin-bottom: 6px;
     }
 
-    .print-subtitle {
-      text-align: center;
-      font-size: 14px;
-      color: #4b5563;
-      margin-bottom: 14px;
-    }
+    
 
     .print-cover {
       border: 1px solid #d1d5db;
@@ -473,23 +461,19 @@
       <div class="card hero-card">
         <h1 class="title">Генератор фотоотчета по объекту</h1>
         <p class="subtitle">
-          Добавляйте объект, помещения, фотографии и подписи, затем формируйте аккуратный фотоотчет и печатайте его в PDF.
+          Добавляйте объект, помещения, фотографии и подписи, затем формируйте аккуратный фотоотчет и сохраняйте его в PDF.
         </p>
-        
-          <div class="badge">Без сервера</div>
-          <div class="badge">Печать в PDF</div>
-          <div class="badge">Работает в браузере</div>
-        </div>
       </div>
 
       <div class="card panel">
         <h3>Быстрые действия</h3>
         <div class="actions">
-          <button class="btn-primary" id="printBtn">Печать / PDF</button>
+          <button class="btn-primary" id="downloadPdfBtn">Скачать PDF</button>
+          <button class="btn-secondary" id="printBtn">Печать</button>
           <button class="btn-secondary" id="demoBtn">Заполнить пример</button>
           <button class="btn-danger" id="clearBtn">Очистить всё</button>
         </div>
-        <p class="footer-note">После нажатия «Печать / PDF» выберите «Сохранить как PDF».</p>
+        <p class="footer-note">На телефоне используйте кнопку «Скачать PDF».</p>
       </div>
     </div>
 
@@ -614,6 +598,7 @@
       coverCustomer: document.getElementById('coverCustomer'),
       addRoomBtn: document.getElementById('addRoomBtn'),
       printBtn: document.getElementById('printBtn'),
+      downloadPdfBtn: document.getElementById('downloadPdfBtn'),
       demoBtn: document.getElementById('demoBtn'),
       clearBtn: document.getElementById('clearBtn')
     };
@@ -953,6 +938,54 @@
       `).join('');
     }
 
+    function sanitizePdfFileName(name) {
+      return (name || 'fotootchet')
+        .trim()
+        .replace(/[^a-zA-Zа-яА-Я0-9_-]+/g, '_') || 'fotootchet';
+    }
+
+    async function downloadPdf() {
+      const element = document.getElementById('printSheet');
+      if (!element) return;
+
+      const oldShadow = element.style.boxShadow;
+      const oldRadius = element.style.borderRadius;
+      const oldMargin = element.style.margin;
+      element.style.boxShadow = 'none';
+      element.style.borderRadius = '0';
+      element.style.margin = '0 auto';
+
+      const opt = {
+        margin: [8, 8, 8, 8],
+        filename: `${sanitizePdfFileName(els.objectName.value)}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: {
+          scale: 2,
+          useCORS: true,
+          backgroundColor: '#ffffff'
+        },
+        jsPDF: {
+          unit: 'mm',
+          format: 'a4',
+          orientation: 'portrait'
+        },
+        pagebreak: {
+          mode: ['css', 'legacy']
+        }
+      };
+
+      try {
+        await html2pdf().set(opt).from(element).save();
+      } catch (error) {
+        console.warn('Ошибка сохранения PDF:', error);
+        alert('Не удалось сохранить PDF. Попробуйте открыть страницу в Chrome или Safari.');
+      } finally {
+        element.style.boxShadow = oldShadow;
+        element.style.borderRadius = oldRadius;
+        element.style.margin = oldMargin;
+      }
+    }
+
     function renderPrint() {
       els.coverObjectName.textContent = els.objectName.value.trim() || 'Объект не указан';
       els.coverGeneralComment.textContent = els.generalComment.value.trim() || 'Общее примечание не заполнено.';
@@ -1044,7 +1077,8 @@
     window.removePhoto = removePhoto;
 
     els.addRoomBtn.addEventListener('click', () => addRoom(els.roomName.value, els.roomComment.value));
-    els.printBtn.addEventListener('click', () => window.print());
+        els.printBtn.addEventListener('click', () => window.print());
+    els.downloadPdfBtn.addEventListener('click', downloadPdf);
     els.demoBtn.addEventListener('click', fillDemo);
     els.clearBtn.addEventListener('click', clearAll);
 

@@ -21,7 +21,6 @@
     }
 
     * { box-sizing: border-box; }
-
     body {
       margin: 0;
       font-family: Arial, Helvetica, sans-serif;
@@ -58,9 +57,7 @@
       padding: 26px;
     }
 
-    h1, h2, h3, h4 {
-      margin: 0;
-    }
+    h1, h2, h3, h4 { margin: 0; }
 
     .title {
       font-size: clamp(28px, 4vw, 42px);
@@ -75,6 +72,14 @@
       max-width: 760px;
     }
 
+    .badge-row {
+      display: none;
+    }
+
+    .badge {
+      display: none;
+    }
+
     .panel {
       padding: 20px;
     }
@@ -84,19 +89,13 @@
       font-size: 20px;
     }
 
-    .grid-2,
-    .grid-3 {
+    .grid-2, .grid-3 {
       display: grid;
       gap: 14px;
     }
 
-    .grid-2 {
-      grid-template-columns: repeat(2, 1fr);
-    }
-
-    .grid-3 {
-      grid-template-columns: repeat(3, 1fr);
-    }
+    .grid-2 { grid-template-columns: repeat(2, 1fr); }
+    .grid-3 { grid-template-columns: repeat(3, 1fr); }
 
     label {
       display: block;
@@ -105,9 +104,7 @@
       margin-bottom: 7px;
     }
 
-    input,
-    textarea,
-    select {
+    input, textarea, select {
       width: 100%;
       border: 1px solid rgba(255,255,255,0.11);
       border-radius: 12px;
@@ -119,9 +116,7 @@
       transition: 0.2s ease;
     }
 
-    input:focus,
-    textarea:focus,
-    select:focus {
+    input:focus, textarea:focus, select:focus {
       border-color: rgba(94,234,212,0.55);
       box-shadow: 0 0 0 3px rgba(94,234,212,0.12);
     }
@@ -139,8 +134,7 @@
       margin-top: 16px;
     }
 
-    button,
-    .file-label {
+    button, .file-label {
       border: 0;
       border-radius: 14px;
       padding: 12px 16px;
@@ -155,15 +149,8 @@
       gap: 8px;
     }
 
-    button:hover,
-    .file-label:hover {
-      transform: translateY(-1px);
-    }
-
-    button:active,
-    .file-label:active {
-      transform: translateY(0);
-    }
+    button:hover, .file-label:hover { transform: translateY(-1px); }
+    button:active, .file-label:active { transform: translateY(0); }
 
     .btn-primary {
       background: linear-gradient(135deg, var(--accent), var(--accent-2));
@@ -277,6 +264,10 @@
       font-size: 13px;
     }
 
+    .muted {
+      color: var(--muted);
+    }
+
     .empty {
       padding: 22px;
       text-align: center;
@@ -304,13 +295,13 @@
       margin-bottom: 6px;
     }
 
+    
+
     .print-cover {
       border: 1px solid #d1d5db;
       border-radius: 10px;
       padding: 16px;
       margin-bottom: 18px;
-      break-inside: avoid;
-      page-break-inside: avoid;
     }
 
     .print-cover-grid {
@@ -353,8 +344,6 @@
       padding: 10px 12px;
       background: #eff6ff;
       border-bottom: 1px solid #dbeafe;
-      break-inside: avoid;
-      page-break-inside: avoid;
     }
 
     .print-room-name {
@@ -367,8 +356,6 @@
       font-size: 12px;
       color: #4b5563;
       white-space: pre-wrap;
-      break-inside: avoid;
-      page-break-inside: avoid;
     }
 
     .print-photos {
@@ -390,13 +377,10 @@
     .print-photo-item img {
       display: block;
       width: 100%;
-      height: auto;
-      max-height: 140mm;
+      height: 140mm;
       object-fit: contain;
       background: #f3f4f6;
       padding: 4mm;
-      break-inside: avoid;
-      page-break-inside: avoid;
     }
 
     .print-photo-caption {
@@ -405,8 +389,6 @@
       padding: 7px 8px;
       min-height: 24px;
       white-space: pre-wrap;
-      break-inside: avoid;
-      page-break-inside: avoid;
     }
 
     .footer-note {
@@ -417,34 +399,25 @@
     }
 
     @media (max-width: 980px) {
-      .hero,
-      .grid-3,
-      .grid-2 {
+      .hero, .grid-3, .grid-2 {
         grid-template-columns: 1fr;
       }
-
       .print-sheet {
         width: 100%;
         min-height: auto;
         border-radius: 18px;
       }
-
-      .print-cover-grid,
-      .print-photos {
+      .print-cover-grid, .print-photos {
         grid-template-columns: 1fr;
       }
-
       .photo-grid {
         grid-template-columns: 1fr;
       }
-
       .photo-preview {
         min-height: 360px;
       }
-
       .print-photo-item img {
-        height: auto;
-        max-height: 320px;
+        height: 320px;
       }
     }
 
@@ -453,7 +426,6 @@
         background: white !important;
         color: black !important;
       }
-
       .no-print,
       .hero,
       .panel,
@@ -463,13 +435,11 @@
       .footer-note {
         display: none !important;
       }
-
       .container {
         width: 100%;
         margin: 0;
         padding: 0;
       }
-
       .print-sheet {
         margin: 0;
         box-shadow: none;
@@ -478,18 +448,6 @@
         border-radius: 0;
         padding: 10mm;
       }
-
-      .print-room,
-      .print-cover,
-      .print-room-head,
-      .print-room-note,
-      .print-photo-item,
-      .print-photo-item img,
-      .print-photo-caption {
-        break-inside: avoid !important;
-        page-break-inside: avoid !important;
-      }
-
       @page {
         size: A4;
         margin: 10mm;
@@ -510,11 +468,12 @@
       <div class="card panel">
         <h3>Быстрые действия</h3>
         <div class="actions">
+          <button class="btn-primary" id="downloadPdfBtn">Скачать PDF</button>
           <button class="btn-secondary" id="printBtn">Печать</button>
           <button class="btn-secondary" id="demoBtn">Заполнить пример</button>
           <button class="btn-danger" id="clearBtn">Очистить всё</button>
         </div>
-        <p class="footer-note">На телефоне прокрутите вниз и нажмите «Скачать PDF».</p>
+        <p class="footer-note">На телефоне используйте кнопку «Скачать PDF».</p>
       </div>
     </div>
 
@@ -534,7 +493,6 @@
           <input id="reportDate" type="date" />
         </div>
       </div>
-
       <div class="grid-2" style="margin-top: 14px;">
         <div>
           <label for="contractor">Исполнитель</label>
@@ -545,7 +503,6 @@
           <input id="customer" type="text" placeholder="Название заказчика" />
         </div>
       </div>
-
       <div style="margin-top: 14px;">
         <label for="generalComment">Общее примечание</label>
         <textarea id="generalComment" placeholder="Например: Выполнен монтаж кабельных линий, установка подрозетников, сборка щита, подготовка к подключению."></textarea>
@@ -576,11 +533,11 @@
 
     <div id="printSheet" class="print-sheet">
       <div class="print-title">ФОТООТЧЕТ ПО ОБЪЕКТУ</div>
+      
 
       <div class="print-cover">
         <div style="font-size: 18px; font-weight: 700; margin-bottom: 4px;" id="coverObjectName">Объект не указан</div>
         <div style="font-size: 13px; color: #6b7280;" id="coverGeneralComment">Добавьте данные объекта и комментарий сверху.</div>
-
         <div class="print-cover-grid">
           <div class="cover-field">
             <div class="cover-label">Адрес</div>
@@ -601,34 +558,24 @@
         </div>
       </div>
 
-      <div id="printRooms"></div>
-    </div>
+      <div id="printRooms"></div>    </div>
 
     <div class="no-print" style="margin-top: 24px; text-align: center;">
-      <button class="btn-primary" id="downloadPdfBtn" style="min-width: 280px; margin-bottom: 14px;">
-        Скачать PDF
-      </button>
-    </div>
-
-    <div class="no-print" style="margin-top: 0; text-align: center;">
       <a
         href="https://alfa-engineer.ru/webinars/categories/proektirovanie-sistem-elektrosnabzhenija/"
         target="_blank"
         rel="noopener noreferrer"
         class="file-label btn-primary"
         style="min-width: 280px;"
-      >
-        Бесплатный вебинар по проектированию электрики
-      </a>
+      >Бесплатный вебинар по проектированию электрики</a>
     </div>
   </div>
-
   <script>
     const state = {
       rooms: []
     };
 
-    const STORAGE_KEY = 'photo_report_generator_v3';
+    const STORAGE_KEY = 'photo_report_generator_v2';
     const MAX_IMAGE_WIDTH = 1600;
     const IMAGE_QUALITY = 0.78;
 
@@ -665,7 +612,7 @@
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
+        .replace(/\"/g, '&quot;')
         .replace(/'/g, '&#039;');
     }
 
@@ -674,12 +621,6 @@
       const date = new Date(value);
       if (Number.isNaN(date.getTime())) return value;
       return date.toLocaleDateString('ru-RU');
-    }
-
-    function sanitizePdfFileName(name) {
-      return (name || 'fotootchet')
-        .trim()
-        .replace(/[^a-zA-Zа-яА-Я0-9_-]+/g, '_') || 'fotootchet';
     }
 
     function buildExportData() {
@@ -698,7 +639,6 @@
 
     function applyImportedData(data) {
       if (!data || typeof data !== 'object') return;
-
       const meta = data.meta || {};
       els.objectName.value = meta.objectName || '';
       els.objectAddress.value = meta.objectAddress || '';
@@ -707,7 +647,6 @@
       els.customer.value = meta.customer || '';
       els.generalComment.value = meta.generalComment || '';
       state.rooms = Array.isArray(data.rooms) ? data.rooms : [];
-
       renderRooms();
       renderPrint();
       saveToStorage();
@@ -760,7 +699,6 @@
       const importLabel = document.createElement('label');
       importLabel.className = 'file-label btn-secondary';
       importLabel.textContent = 'Импорт JSON';
-
       const importInput = document.createElement('input');
       importInput.type = 'file';
       importInput.accept = '.json,application/json';
@@ -769,8 +707,8 @@
         importJson(e.target.files?.[0]);
         e.target.value = '';
       });
-
       importLabel.appendChild(importInput);
+
       actionsRoot.appendChild(exportBtn);
       actionsRoot.appendChild(importLabel);
     }
@@ -780,20 +718,17 @@
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
-
+      const safeName = (els.objectName.value || 'fotootchet').trim().replace(/[^a-zA-Zа-яА-Я0-9_-]+/g, '_');
       a.href = url;
-      a.download = `${sanitizePdfFileName(els.objectName.value)}.json`;
-
+      a.download = `${safeName || 'fotootchet'}.json`;
       document.body.appendChild(a);
       a.click();
       a.remove();
-
       URL.revokeObjectURL(url);
     }
 
     function importJson(file) {
       if (!file) return;
-
       const reader = new FileReader();
       reader.onload = () => {
         try {
@@ -812,17 +747,14 @@
         alert('Введите название помещения.');
         return;
       }
-
       state.rooms.push({
         id: uid(),
         name: roomName,
         comment: comment.trim(),
         photos: []
       });
-
       els.roomName.value = '';
       els.roomComment.value = '';
-
       renderRooms();
       renderPrint();
       saveToStorage();
@@ -831,10 +763,8 @@
     function removeRoom(roomId) {
       const room = state.rooms.find(r => r.id === roomId);
       if (!room) return;
-
       const ok = confirm(`Удалить помещение "${room.name}"?`);
       if (!ok) return;
-
       state.rooms = state.rooms.filter(r => r.id !== roomId);
       renderRooms();
       renderPrint();
@@ -844,7 +774,6 @@
     function updateRoomComment(roomId, value) {
       const room = state.rooms.find(r => r.id === roomId);
       if (!room) return;
-
       room.comment = value;
       renderPrint();
       saveToStorage();
@@ -853,7 +782,6 @@
     function updateRoomName(roomId, value) {
       const room = state.rooms.find(r => r.id === roomId);
       if (!room) return;
-
       room.name = value.trim() || 'Без названия';
       renderRooms();
       renderPrint();
@@ -863,13 +791,10 @@
     function compressImage(file) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
-
         reader.onload = () => {
           const img = new Image();
-
           img.onload = () => {
             let { width, height } = img;
-
             if (width > MAX_IMAGE_WIDTH) {
               const ratio = MAX_IMAGE_WIDTH / width;
               width = MAX_IMAGE_WIDTH;
@@ -879,18 +804,14 @@
             const canvas = document.createElement('canvas');
             canvas.width = width;
             canvas.height = height;
-
             const ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0, width, height);
-
             const dataUrl = canvas.toDataURL('image/jpeg', IMAGE_QUALITY);
             resolve(dataUrl);
           };
-
           img.onerror = () => reject(new Error('Ошибка загрузки изображения'));
           img.src = reader.result;
         };
-
         reader.onerror = () => reject(new Error('Ошибка чтения файла'));
         reader.readAsDataURL(file);
       });
@@ -902,17 +823,14 @@
 
       for (const file of Array.from(files)) {
         if (!file.type.startsWith('image/')) continue;
-
         try {
           const compressedSrc = await compressImage(file);
-
           room.photos.push({
             id: uid(),
             name: file.name,
             src: compressedSrc,
             caption: ''
           });
-
           renderRooms();
           renderPrint();
           saveToStorage();
@@ -926,7 +844,6 @@
       const room = state.rooms.find(r => r.id === roomId);
       const photo = room?.photos.find(p => p.id === photoId);
       if (!photo) return;
-
       photo.caption = value;
       renderRooms();
       renderPrint();
@@ -936,16 +853,12 @@
     function movePhoto(roomId, photoId, direction) {
       const room = state.rooms.find(r => r.id === roomId);
       if (!room) return;
-
       const index = room.photos.findIndex(p => p.id === photoId);
       if (index < 0) return;
-
       const newIndex = index + direction;
       if (newIndex < 0 || newIndex >= room.photos.length) return;
-
       const [item] = room.photos.splice(index, 1);
       room.photos.splice(newIndex, 0, item);
-
       renderRooms();
       renderPrint();
       saveToStorage();
@@ -954,7 +867,6 @@
     function removePhoto(roomId, photoId) {
       const room = state.rooms.find(r => r.id === roomId);
       if (!room) return;
-
       room.photos = room.photos.filter(p => p.id !== photoId);
       renderRooms();
       renderPrint();
@@ -963,7 +875,7 @@
 
     function renderRooms() {
       if (!state.rooms.length) {
-        els.roomsContainer.innerHTML = '<div class="empty">Пока нет помещений. Добавьте первое помещение ниже.</div>';
+        els.roomsContainer.innerHTML = '<div class="empty">Пока нет помещений. Добавьте первое помещение выше.</div>';
         return;
       }
 
@@ -978,49 +890,26 @@
               <button class="btn-danger" onclick="removeRoom('${room.id}')">Удалить помещение</button>
             </div>
           </div>
-
           <div class="room-body">
             <div class="grid-2">
               <div>
                 <label>Название помещения</label>
-                <input
-                  type="text"
-                  value="${escapeHtml(room.name)}"
-                  oninput="updateRoomName('${room.id}', this.value)"
-                />
+                <input type="text" value="${escapeHtml(room.name)}" oninput="updateRoomName('${room.id}', this.value)" />
               </div>
-
               <div>
                 <label>Комментарий по помещению</label>
-                <input
-                  type="text"
-                  value="${escapeHtml(room.comment)}"
-                  oninput="updateRoomComment('${room.id}', this.value)"
-                />
+                <input type="text" value="${escapeHtml(room.comment)}" oninput="updateRoomComment('${room.id}', this.value)" />
               </div>
             </div>
 
             <div class="actions">
               <label class="file-label btn-primary">
                 Сделать фото
-                <input
-                  class="hidden-input"
-                  type="file"
-                  accept="image/*"
-                  capture="environment"
-                  onchange="handlePhotoInput('${room.id}', this.files); this.value='';"
-                />
+                <input class="hidden-input" type="file" accept="image/*" capture="environment" onchange="handlePhotoInput('${room.id}', this.files); this.value='';" />
               </label>
-
               <label class="file-label btn-secondary">
                 Выбрать из галереи
-                <input
-                  class="hidden-input"
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  onchange="handlePhotoInput('${room.id}', this.files); this.value='';"
-                />
+                <input class="hidden-input" type="file" accept="image/*" multiple onchange="handlePhotoInput('${room.id}', this.files); this.value='';" />
               </label>
             </div>
 
@@ -1030,16 +919,10 @@
                   ${room.photos.map((photo, photoIndex) => `
                     <div class="photo-item">
                       <img class="photo-preview" src="${photo.src}" alt="${escapeHtml(photo.name)}" />
-
                       <div class="photo-caption">
                         <label style="margin-bottom: 6px;">Подпись к фото ${photoIndex + 1}</label>
-                        <textarea
-                          style="min-height: 72px;"
-                          onchange="updatePhotoCaption('${room.id}', '${photo.id}', this.value)"
-                          onblur="updatePhotoCaption('${room.id}', '${photo.id}', this.value)"
-                        >${escapeHtml(photo.caption)}</textarea>
+                        <textarea style="min-height: 72px;" onchange="updatePhotoCaption('${room.id}', '${photo.id}', this.value)" onblur="updatePhotoCaption('${room.id}', '${photo.id}', this.value)">${escapeHtml(photo.caption)}</textarea>
                       </div>
-
                       <div class="photo-tools">
                         <button class="btn-secondary" onclick="movePhoto('${room.id}', '${photo.id}', -1)">⬅ Выше</button>
                         <button class="btn-secondary" onclick="movePhoto('${room.id}', '${photo.id}', 1)">Ниже ➡</button>
@@ -1055,46 +938,85 @@
       `).join('');
     }
 
-    async function downloadPdf() {
-      const element = document.getElementById('printSheet');
-      if (!element) return;
+    function sanitizePdfFileName(name) {
+      return (name || 'fotootchet')
+        .trim()
+        .replace(/[^a-zA-Zа-яА-Я0-9_-]+/g, '_') || 'fotootchet';
+    }
 
-      const oldShadow = element.style.boxShadow;
-      const oldRadius = element.style.borderRadius;
-      const oldMargin = element.style.margin;
+    function wait(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
 
-      element.style.boxShadow = 'none';
-      element.style.borderRadius = '0';
-      element.style.margin = '0 auto';
-
-      const opt = {
-        margin: [8, 8, 8, 8],
-        filename: `${sanitizePdfFileName(els.objectName.value)}.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: {
-          scale: 2,
-          useCORS: true,
-          backgroundColor: '#ffffff'
-        },
-        jsPDF: {
-          unit: 'mm',
-          format: 'a4',
-          orientation: 'portrait'
-        },
-        pagebreak: {
-          mode: ['css', 'legacy', 'avoid-all']
+    async function waitForImages(container) {
+      const images = Array.from(container.querySelectorAll('img'));
+      await Promise.all(images.map((img) => {
+        if (img.complete && img.naturalWidth > 0) {
+          return Promise.resolve();
         }
-      };
+        return new Promise((resolve) => {
+          img.onload = () => resolve();
+          img.onerror = () => resolve();
+        });
+      }));
+    }
+
+    async function downloadPdf() {
+      const source = document.getElementById('printSheet');
+      if (!source) return;
+
+      const clone = source.cloneNode(true);
+      clone.id = 'printSheetPdfClone';
+      clone.style.width = '794px';
+      clone.style.minHeight = 'auto';
+      clone.style.margin = '0';
+      clone.style.boxShadow = 'none';
+      clone.style.borderRadius = '0';
+      clone.style.position = 'fixed';
+      clone.style.left = '-10000px';
+      clone.style.top = '0';
+      clone.style.zIndex = '-1';
+      clone.style.background = '#ffffff';
+      clone.style.color = '#111827';
+      clone.style.transform = 'none';
+      clone.style.visibility = 'visible';
+      clone.style.opacity = '1';
+
+      document.body.appendChild(clone);
 
       try {
-        await html2pdf().set(opt).from(element).save();
+        await waitForImages(clone);
+        await wait(250);
+
+        const opt = {
+          margin: [6, 6, 6, 6],
+          filename: `${sanitizePdfFileName(els.objectName.value)}.pdf`,
+          image: { type: 'jpeg', quality: 0.95 },
+          html2canvas: {
+            scale: 1.2,
+            useCORS: true,
+            backgroundColor: '#ffffff',
+            logging: false,
+            scrollX: 0,
+            scrollY: 0,
+            windowWidth: 794
+          },
+          jsPDF: {
+            unit: 'mm',
+            format: 'a4',
+            orientation: 'portrait'
+          },
+          pagebreak: {
+            mode: ['css', 'legacy', 'avoid-all']
+          }
+        };
+
+        await html2pdf().set(opt).from(clone).save();
       } catch (error) {
         console.warn('Ошибка сохранения PDF:', error);
-        alert('Не удалось сохранить PDF. Попробуйте открыть страницу в Chrome или Safari.');
+        alert('Не удалось сохранить PDF. Чаще всего это из-за памяти телефона. Попробуйте уменьшить количество фото в одном отчете или открыть страницу в Chrome.');
       } finally {
-        element.style.boxShadow = oldShadow;
-        element.style.borderRadius = oldRadius;
-        element.style.margin = oldMargin;
+        clone.remove();
       }
     }
 
@@ -1121,7 +1043,6 @@
             <div class="print-room-name">${escapeHtml(room.name)}</div>
             <div class="print-room-note">${escapeHtml(room.comment || 'Без комментария')}</div>
           </div>
-
           <div class="print-photos">
             ${room.photos.length ? room.photos.map((photo) => `
               <div class="print-photo-item">
@@ -1137,7 +1058,6 @@
     function clearAll() {
       const ok = confirm('Очистить все данные, помещения и фотографии?');
       if (!ok) return;
-
       state.rooms = [];
       els.objectName.value = '';
       els.objectAddress.value = '';
@@ -1147,9 +1067,7 @@
       els.generalComment.value = '';
       els.roomName.value = '';
       els.roomComment.value = '';
-
       localStorage.removeItem(STORAGE_KEY);
-
       renderRooms();
       renderPrint();
     }
@@ -1169,14 +1087,12 @@
           photos: []
         }
       ];
-
       els.objectName.value = 'Капитальный ремонт объекта';
       els.objectAddress.value = 'г. Казань, ул. Примерная, д. 10';
       els.reportDate.value = new Date().toISOString().slice(0, 10);
       els.contractor.value = 'ООО «Альфа»';
       els.customer.value = 'Заказчик объекта';
       els.generalComment.value = 'Выполнены электромонтажные работы. Фотофиксация текущего этапа производства работ.';
-
       renderRooms();
       renderPrint();
       saveToStorage();
@@ -1195,7 +1111,7 @@
     window.removePhoto = removePhoto;
 
     els.addRoomBtn.addEventListener('click', () => addRoom(els.roomName.value, els.roomComment.value));
-    els.printBtn.addEventListener('click', () => window.print());
+        els.printBtn.addEventListener('click', () => window.print());
     els.downloadPdfBtn.addEventListener('click', downloadPdf);
     els.demoBtn.addEventListener('click', fillDemo);
     els.clearBtn.addEventListener('click', clearAll);

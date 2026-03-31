@@ -9,7 +9,6 @@
     :root {
       --bg: #0b1020;
       --panel: #121933;
-      --panel-2: #1a2345;
       --text: #eef2ff;
       --muted: #a8b1d1;
       --accent: #5eead4;
@@ -21,6 +20,7 @@
     }
 
     * { box-sizing: border-box; }
+
     body {
       margin: 0;
       font-family: Arial, Helvetica, sans-serif;
@@ -53,8 +53,9 @@
       backdrop-filter: blur(8px);
     }
 
-    .hero-card {
-      padding: 26px;
+    .hero-card,
+    .panel {
+      padding: 20px 22px;
     }
 
     h1, h2, h3, h4 { margin: 0; }
@@ -72,24 +73,13 @@
       max-width: 760px;
     }
 
-    .badge-row {
-      display: none;
-    }
-
-    .badge {
-      display: none;
-    }
-
-    .panel {
-      padding: 20px;
-    }
-
     .panel h3 {
       margin-bottom: 14px;
       font-size: 20px;
     }
 
-    .grid-2, .grid-3 {
+    .grid-2,
+    .grid-3 {
       display: grid;
       gap: 14px;
     }
@@ -104,7 +94,8 @@
       margin-bottom: 7px;
     }
 
-    input, textarea, select {
+    input,
+    textarea {
       width: 100%;
       border: 1px solid rgba(255,255,255,0.11);
       border-radius: 12px;
@@ -116,7 +107,8 @@
       transition: 0.2s ease;
     }
 
-    input:focus, textarea:focus, select:focus {
+    input:focus,
+    textarea:focus {
       border-color: rgba(94,234,212,0.55);
       box-shadow: 0 0 0 3px rgba(94,234,212,0.12);
     }
@@ -134,7 +126,8 @@
       margin-top: 16px;
     }
 
-    button, .file-label {
+    button,
+    .file-label {
       border: 0;
       border-radius: 14px;
       padding: 12px 16px;
@@ -149,8 +142,10 @@
       gap: 8px;
     }
 
-    button:hover, .file-label:hover { transform: translateY(-1px); }
-    button:active, .file-label:active { transform: translateY(0); }
+    button:hover,
+    .file-label:hover { transform: translateY(-1px); }
+    button:active,
+    .file-label:active { transform: translateY(0); }
 
     .btn-primary {
       background: linear-gradient(135deg, var(--accent), var(--accent-2));
@@ -170,9 +165,7 @@
       border: 1px solid rgba(251,113,133,0.28);
     }
 
-    .hidden-input {
-      display: none;
-    }
+    .hidden-input { display: none; }
 
     .section-title {
       font-size: 24px;
@@ -202,9 +195,7 @@
       background: rgba(255,255,255,0.03);
     }
 
-    .room-header-left {
-      min-width: 0;
-    }
+    .room-header-left { min-width: 0; }
 
     .room-title {
       font-size: 20px;
@@ -217,9 +208,7 @@
       font-size: 14px;
     }
 
-    .room-body {
-      padding: 18px;
-    }
+    .room-body { padding: 18px; }
 
     .photo-grid {
       display: grid;
@@ -264,10 +253,6 @@
       font-size: 13px;
     }
 
-    .muted {
-      color: var(--muted);
-    }
-
     .empty {
       padding: 22px;
       text-align: center;
@@ -295,13 +280,13 @@
       margin-bottom: 6px;
     }
 
-    
-
     .print-cover {
       border: 1px solid #d1d5db;
       border-radius: 10px;
       padding: 16px;
       margin-bottom: 18px;
+      break-inside: avoid;
+      page-break-inside: avoid;
     }
 
     .print-cover-grid {
@@ -344,6 +329,8 @@
       padding: 10px 12px;
       background: #eff6ff;
       border-bottom: 1px solid #dbeafe;
+      break-inside: avoid;
+      page-break-inside: avoid;
     }
 
     .print-room-name {
@@ -356,6 +343,8 @@
       font-size: 12px;
       color: #4b5563;
       white-space: pre-wrap;
+      break-inside: avoid;
+      page-break-inside: avoid;
     }
 
     .print-photos {
@@ -377,10 +366,13 @@
     .print-photo-item img {
       display: block;
       width: 100%;
-      height: 140mm;
+      height: auto;
+      max-height: 140mm;
       object-fit: contain;
       background: #f3f4f6;
       padding: 4mm;
+      break-inside: avoid;
+      page-break-inside: avoid;
     }
 
     .print-photo-caption {
@@ -389,6 +381,8 @@
       padding: 7px 8px;
       min-height: 24px;
       white-space: pre-wrap;
+      break-inside: avoid;
+      page-break-inside: avoid;
     }
 
     .footer-note {
@@ -399,25 +393,26 @@
     }
 
     @media (max-width: 980px) {
-      .hero, .grid-3, .grid-2 {
-        grid-template-columns: 1fr;
-      }
+      .hero,
+      .grid-3,
+      .grid-2 { grid-template-columns: 1fr; }
+
       .print-sheet {
         width: 100%;
         min-height: auto;
         border-radius: 18px;
       }
-      .print-cover-grid, .print-photos {
-        grid-template-columns: 1fr;
-      }
-      .photo-grid {
-        grid-template-columns: 1fr;
-      }
-      .photo-preview {
-        min-height: 360px;
-      }
+
+      .print-cover-grid,
+      .print-photos { grid-template-columns: 1fr; }
+
+      .photo-grid { grid-template-columns: 1fr; }
+
+      .photo-preview { min-height: 360px; }
+
       .print-photo-item img {
-        height: 320px;
+        height: auto;
+        max-height: 320px;
       }
     }
 
@@ -426,6 +421,7 @@
         background: white !important;
         color: black !important;
       }
+
       .no-print,
       .hero,
       .panel,
@@ -435,11 +431,13 @@
       .footer-note {
         display: none !important;
       }
+
       .container {
         width: 100%;
         margin: 0;
         padding: 0;
       }
+
       .print-sheet {
         margin: 0;
         box-shadow: none;
@@ -448,6 +446,18 @@
         border-radius: 0;
         padding: 10mm;
       }
+
+      .print-room,
+      .print-cover,
+      .print-room-head,
+      .print-room-note,
+      .print-photo-item,
+      .print-photo-item img,
+      .print-photo-caption {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+      }
+
       @page {
         size: A4;
         margin: 10mm;
@@ -461,19 +471,17 @@
       <div class="card hero-card">
         <h1 class="title">Генератор фотоотчета по объекту</h1>
         <p class="subtitle">
-          Добавляйте объект, помещения, фотографии и подписи, затем формируйте аккуратный фотоотчет и сохраняйте его в PDF.
+          Добавляйте объект, помещения, фотографии и подписи, затем формируйте аккуратный фотоотчет и скачивайте его в PDF.
         </p>
       </div>
 
       <div class="card panel">
         <h3>Быстрые действия</h3>
         <div class="actions">
-          <button class="btn-primary" id="downloadPdfBtn">Скачать PDF</button>
-          <button class="btn-secondary" id="printBtn">Печать</button>
           <button class="btn-secondary" id="demoBtn">Заполнить пример</button>
           <button class="btn-danger" id="clearBtn">Очистить всё</button>
         </div>
-        <p class="footer-note">На телефоне используйте кнопку «Скачать PDF».</p>
+        <p class="footer-note">Для телефона используйте кнопку «Скачать PDF» внизу страницы.</p>
       </div>
     </div>
 
@@ -493,6 +501,7 @@
           <input id="reportDate" type="date" />
         </div>
       </div>
+
       <div class="grid-2" style="margin-top: 14px;">
         <div>
           <label for="contractor">Исполнитель</label>
@@ -503,6 +512,7 @@
           <input id="customer" type="text" placeholder="Название заказчика" />
         </div>
       </div>
+
       <div style="margin-top: 14px;">
         <label for="generalComment">Общее примечание</label>
         <textarea id="generalComment" placeholder="Например: Выполнен монтаж кабельных линий, установка подрозетников, сборка щита, подготовка к подключению."></textarea>
@@ -533,11 +543,11 @@
 
     <div id="printSheet" class="print-sheet">
       <div class="print-title">ФОТООТЧЕТ ПО ОБЪЕКТУ</div>
-      
 
       <div class="print-cover">
         <div style="font-size: 18px; font-weight: 700; margin-bottom: 4px;" id="coverObjectName">Объект не указан</div>
         <div style="font-size: 13px; color: #6b7280;" id="coverGeneralComment">Добавьте данные объекта и комментарий сверху.</div>
+
         <div class="print-cover-grid">
           <div class="cover-field">
             <div class="cover-label">Адрес</div>
@@ -558,26 +568,36 @@
         </div>
       </div>
 
-      <div id="printRooms"></div>    </div>
+      <div id="printRooms"></div>
+    </div>
 
     <div class="no-print" style="margin-top: 24px; text-align: center;">
+      <button class="btn-primary" id="downloadPdfBtn" style="min-width: 280px; margin-bottom: 14px;">
+        Скачать PDF
+      </button>
+    </div>
+
+    <div class="no-print" style="margin-top: 0; text-align: center;">
       <a
         href="https://alfa-engineer.ru/webinars/categories/proektirovanie-sistem-elektrosnabzhenija/"
         target="_blank"
         rel="noopener noreferrer"
         class="file-label btn-primary"
         style="min-width: 280px;"
-      >Бесплатный вебинар по проектированию электрики</a>
+      >
+        Бесплатный вебинар по проектированию электрики
+      </a>
     </div>
   </div>
+
   <script>
     const state = {
       rooms: []
     };
 
-    const STORAGE_KEY = 'photo_report_generator_v2';
-    const MAX_IMAGE_WIDTH = 1600;
-    const IMAGE_QUALITY = 0.78;
+    const STORAGE_KEY = 'photo_report_generator_v4';
+    const MAX_IMAGE_WIDTH = 1400;
+    const IMAGE_QUALITY = 0.82;
 
     const els = {
       objectName: document.getElementById('objectName'),
@@ -597,7 +617,6 @@
       coverContractor: document.getElementById('coverContractor'),
       coverCustomer: document.getElementById('coverCustomer'),
       addRoomBtn: document.getElementById('addRoomBtn'),
-      printBtn: document.getElementById('printBtn'),
       downloadPdfBtn: document.getElementById('downloadPdfBtn'),
       demoBtn: document.getElementById('demoBtn'),
       clearBtn: document.getElementById('clearBtn')
@@ -612,7 +631,7 @@
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
-        .replace(/\"/g, '&quot;')
+        .replace(/"/g, '&quot;')
         .replace(/'/g, '&#039;');
     }
 
@@ -621,6 +640,30 @@
       const date = new Date(value);
       if (Number.isNaN(date.getTime())) return value;
       return date.toLocaleDateString('ru-RU');
+    }
+
+    function sanitizeFileName(name) {
+      return (name || 'fotootchet')
+        .trim()
+        .replace(/[^a-zA-Zа-яА-Я0-9_-]+/g, '_') || 'fotootchet';
+    }
+
+    function wait(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    async function waitForImages(container) {
+      const images = Array.from(container.querySelectorAll('img'));
+      await Promise.all(images.map((img) => {
+        if (img.complete && img.naturalWidth > 0) {
+          return Promise.resolve();
+        }
+        return new Promise((resolve) => {
+          const done = () => resolve();
+          img.addEventListener('load', done, { once: true });
+          img.addEventListener('error', done, { once: true });
+        });
+      }));
     }
 
     function buildExportData() {
@@ -639,6 +682,7 @@
 
     function applyImportedData(data) {
       if (!data || typeof data !== 'object') return;
+
       const meta = data.meta || {};
       els.objectName.value = meta.objectName || '';
       els.objectAddress.value = meta.objectAddress || '';
@@ -647,6 +691,7 @@
       els.customer.value = meta.customer || '';
       els.generalComment.value = meta.generalComment || '';
       state.rooms = Array.isArray(data.rooms) ? data.rooms : [];
+
       renderRooms();
       renderPrint();
       saveToStorage();
@@ -664,8 +709,7 @@
       try {
         const raw = localStorage.getItem(STORAGE_KEY);
         if (!raw) return;
-        const data = JSON.parse(raw);
-        applyImportedData(data);
+        applyImportedData(JSON.parse(raw));
       } catch (error) {
         console.warn('Не удалось загрузить данные из localStorage:', error);
       }
@@ -699,6 +743,7 @@
       const importLabel = document.createElement('label');
       importLabel.className = 'file-label btn-secondary';
       importLabel.textContent = 'Импорт JSON';
+
       const importInput = document.createElement('input');
       importInput.type = 'file';
       importInput.accept = '.json,application/json';
@@ -707,8 +752,8 @@
         importJson(e.target.files?.[0]);
         e.target.value = '';
       });
-      importLabel.appendChild(importInput);
 
+      importLabel.appendChild(importInput);
       actionsRoot.appendChild(exportBtn);
       actionsRoot.appendChild(importLabel);
     }
@@ -718,9 +763,8 @@
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
-      const safeName = (els.objectName.value || 'fotootchet').trim().replace(/[^a-zA-Zа-яА-Я0-9_-]+/g, '_');
       a.href = url;
-      a.download = `${safeName || 'fotootchet'}.json`;
+      a.download = `${sanitizeFileName(els.objectName.value)}.json`;
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -732,8 +776,7 @@
       const reader = new FileReader();
       reader.onload = () => {
         try {
-          const data = JSON.parse(reader.result);
-          applyImportedData(data);
+          applyImportedData(JSON.parse(reader.result));
         } catch (error) {
           alert('Не удалось прочитать JSON-файл.');
         }
@@ -747,12 +790,14 @@
         alert('Введите название помещения.');
         return;
       }
+
       state.rooms.push({
         id: uid(),
         name: roomName,
         comment: comment.trim(),
         photos: []
       });
+
       els.roomName.value = '';
       els.roomComment.value = '';
       renderRooms();
@@ -763,8 +808,8 @@
     function removeRoom(roomId) {
       const room = state.rooms.find(r => r.id === roomId);
       if (!room) return;
-      const ok = confirm(`Удалить помещение "${room.name}"?`);
-      if (!ok) return;
+      if (!confirm(`Удалить помещение "${room.name}"?`)) return;
+
       state.rooms = state.rooms.filter(r => r.id !== roomId);
       renderRooms();
       renderPrint();
@@ -800,14 +845,12 @@
               width = MAX_IMAGE_WIDTH;
               height = Math.round(height * ratio);
             }
-
             const canvas = document.createElement('canvas');
             canvas.width = width;
             canvas.height = height;
             const ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0, width, height);
-            const dataUrl = canvas.toDataURL('image/jpeg', IMAGE_QUALITY);
-            resolve(dataUrl);
+            resolve(canvas.toDataURL('image/jpeg', IMAGE_QUALITY));
           };
           img.onerror = () => reject(new Error('Ошибка загрузки изображения'));
           img.src = reader.result;
@@ -834,6 +877,7 @@
           renderRooms();
           renderPrint();
           saveToStorage();
+          await wait(60);
         } catch (error) {
           console.warn('Ошибка обработки фото:', error);
         }
@@ -875,7 +919,7 @@
 
     function renderRooms() {
       if (!state.rooms.length) {
-        els.roomsContainer.innerHTML = '<div class="empty">Пока нет помещений. Добавьте первое помещение выше.</div>';
+        els.roomsContainer.innerHTML = '<div class="empty">Пока нет помещений. Добавьте первое помещение ниже.</div>';
         return;
       }
 
@@ -890,6 +934,7 @@
               <button class="btn-danger" onclick="removeRoom('${room.id}')">Удалить помещение</button>
             </div>
           </div>
+
           <div class="room-body">
             <div class="grid-2">
               <div>
@@ -938,88 +983,6 @@
       `).join('');
     }
 
-    function sanitizePdfFileName(name) {
-      return (name || 'fotootchet')
-        .trim()
-        .replace(/[^a-zA-Zа-яА-Я0-9_-]+/g, '_') || 'fotootchet';
-    }
-
-    function wait(ms) {
-      return new Promise(resolve => setTimeout(resolve, ms));
-    }
-
-    async function waitForImages(container) {
-      const images = Array.from(container.querySelectorAll('img'));
-      await Promise.all(images.map((img) => {
-        if (img.complete && img.naturalWidth > 0) {
-          return Promise.resolve();
-        }
-        return new Promise((resolve) => {
-          img.onload = () => resolve();
-          img.onerror = () => resolve();
-        });
-      }));
-    }
-
-    async function downloadPdf() {
-      const source = document.getElementById('printSheet');
-      if (!source) return;
-
-      const clone = source.cloneNode(true);
-      clone.id = 'printSheetPdfClone';
-      clone.style.width = '794px';
-      clone.style.minHeight = 'auto';
-      clone.style.margin = '0';
-      clone.style.boxShadow = 'none';
-      clone.style.borderRadius = '0';
-      clone.style.position = 'fixed';
-      clone.style.left = '-10000px';
-      clone.style.top = '0';
-      clone.style.zIndex = '-1';
-      clone.style.background = '#ffffff';
-      clone.style.color = '#111827';
-      clone.style.transform = 'none';
-      clone.style.visibility = 'visible';
-      clone.style.opacity = '1';
-
-      document.body.appendChild(clone);
-
-      try {
-        await waitForImages(clone);
-        await wait(250);
-
-        const opt = {
-          margin: [6, 6, 6, 6],
-          filename: `${sanitizePdfFileName(els.objectName.value)}.pdf`,
-          image: { type: 'jpeg', quality: 0.95 },
-          html2canvas: {
-            scale: 1.2,
-            useCORS: true,
-            backgroundColor: '#ffffff',
-            logging: false,
-            scrollX: 0,
-            scrollY: 0,
-            windowWidth: 794
-          },
-          jsPDF: {
-            unit: 'mm',
-            format: 'a4',
-            orientation: 'portrait'
-          },
-          pagebreak: {
-            mode: ['css', 'legacy', 'avoid-all']
-          }
-        };
-
-        await html2pdf().set(opt).from(clone).save();
-      } catch (error) {
-        console.warn('Ошибка сохранения PDF:', error);
-        alert('Не удалось сохранить PDF. Чаще всего это из-за памяти телефона. Попробуйте уменьшить количество фото в одном отчете или открыть страницу в Chrome.');
-      } finally {
-        clone.remove();
-      }
-    }
-
     function renderPrint() {
       els.coverObjectName.textContent = els.objectName.value.trim() || 'Объект не указан';
       els.coverGeneralComment.textContent = els.generalComment.value.trim() || 'Общее примечание не заполнено.';
@@ -1055,9 +1018,74 @@
       `).join('');
     }
 
+    async function downloadPdf() {
+      const source = document.getElementById('printSheet');
+      if (!source) return;
+
+      els.downloadPdfBtn.disabled = true;
+      els.downloadPdfBtn.textContent = 'Готовим PDF...';
+
+      const clone = source.cloneNode(true);
+      clone.id = 'printSheetPdfClone';
+      clone.style.width = '794px';
+      clone.style.minHeight = 'auto';
+      clone.style.margin = '0';
+      clone.style.boxShadow = 'none';
+      clone.style.borderRadius = '0';
+      clone.style.position = 'fixed';
+      clone.style.left = '-10000px';
+      clone.style.top = '0';
+      clone.style.zIndex = '-1';
+      clone.style.background = '#ffffff';
+      clone.style.color = '#111827';
+      clone.style.visibility = 'visible';
+      clone.style.opacity = '1';
+      clone.style.transform = 'none';
+
+      document.body.appendChild(clone);
+
+      try {
+        await waitForImages(clone);
+        await wait(300);
+
+        const opt = {
+          margin: [6, 6, 6, 6],
+          filename: `${sanitizeFileName(els.objectName.value)}.pdf`,
+          image: { type: 'jpeg', quality: 0.92 },
+          html2canvas: {
+            scale: 1,
+            useCORS: true,
+            backgroundColor: '#ffffff',
+            logging: false,
+            scrollX: 0,
+            scrollY: 0,
+            windowWidth: 794,
+            width: 794
+          },
+          jsPDF: {
+            unit: 'mm',
+            format: 'a4',
+            orientation: 'portrait',
+            compress: true
+          },
+          pagebreak: {
+            mode: ['css', 'legacy', 'avoid-all']
+          }
+        };
+
+        await html2pdf().set(opt).from(clone).save();
+      } catch (error) {
+        console.warn('Ошибка сохранения PDF:', error);
+        alert('Не удалось сохранить PDF. Попробуйте уменьшить количество фото в одном отчете или открыть страницу в Chrome на телефоне.');
+      } finally {
+        clone.remove();
+        els.downloadPdfBtn.disabled = false;
+        els.downloadPdfBtn.textContent = 'Скачать PDF';
+      }
+    }
+
     function clearAll() {
-      const ok = confirm('Очистить все данные, помещения и фотографии?');
-      if (!ok) return;
+      if (!confirm('Очистить все данные, помещения и фотографии?')) return;
       state.rooms = [];
       els.objectName.value = '';
       els.objectAddress.value = '';
@@ -1087,12 +1115,14 @@
           photos: []
         }
       ];
+
       els.objectName.value = 'Капитальный ремонт объекта';
       els.objectAddress.value = 'г. Казань, ул. Примерная, д. 10';
       els.reportDate.value = new Date().toISOString().slice(0, 10);
       els.contractor.value = 'ООО «Альфа»';
       els.customer.value = 'Заказчик объекта';
       els.generalComment.value = 'Выполнены электромонтажные работы. Фотофиксация текущего этапа производства работ.';
+
       renderRooms();
       renderPrint();
       saveToStorage();
@@ -1111,7 +1141,6 @@
     window.removePhoto = removePhoto;
 
     els.addRoomBtn.addEventListener('click', () => addRoom(els.roomName.value, els.roomComment.value));
-        els.printBtn.addEventListener('click', () => window.print());
     els.downloadPdfBtn.addEventListener('click', downloadPdf);
     els.demoBtn.addEventListener('click', fillDemo);
     els.clearBtn.addEventListener('click', clearAll);

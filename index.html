@@ -529,7 +529,7 @@
           <button class="btn-secondary" id="demoBtn">Заполнить пример</button>
           <button class="btn-danger" id="clearBtn">Очистить всё</button>
         </div>
-        <p class="footer-note">Для телефона используйте кнопку «Открыть PDF на телефоне / Печать» внизу страницы. В открывшемся окне выберите «Сохранить как PDF» или «Поделиться».</p>
+        <p class="footer-note">Для телефона используйте кнопку «Открыть PDF на телефоне» внизу страницы. В открывшемся окне выберите «Сохранить как PDF» или «Поделиться».</p>
       </div>
     </div>
 
@@ -1082,157 +1082,326 @@
       }).join('');
     }
 
-    function buildPrintableHtml() {
-      const reportTitle = escapeHtml(els.objectName.value.trim() || 'ФОТООТЧЕТ');
-      const sheetHtml = document.getElementById('printSheet').outerHTML;
 
-      return `<!DOCTYPE html>
-<html lang="ru">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>${reportTitle}</title>
-  <style>
-    * { box-sizing: border-box; }
-    html, body { margin: 0; padding: 0; background: #f3f4f6; font-family: Arial, Helvetica, sans-serif; }
-    .page-wrap { padding: 16px; }
-    .print-sheet {
-      background: white;
-      color: #111827;
-      width: 210mm;
-      min-height: 297mm;
-      margin: 0 auto;
-      padding: 12mm 10mm;
-      box-shadow: 0 10px 24px rgba(0,0,0,0.12);
+    async function loadImage(src) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = () => reject(new Error('Не удалось загрузить изображение'));
+        img.src = src;
+      });
     }
-    .print-title { text-align: center; font-size: 24px; font-weight: bold; margin-bottom: 6px; }
-    .print-cover { border: 1px solid #d1d5db; border-radius: 10px; padding: 16px; margin-bottom: 18px; break-inside: avoid; page-break-inside: avoid; }
-    .print-cover-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
-    .cover-field { border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px 12px; background: #f9fafb; }
-    .cover-label { font-size: 11px; color: #6b7280; text-transform: uppercase; margin-bottom: 4px; }
-    .cover-value { font-size: 14px; font-weight: 600; word-break: break-word; }
-    .print-rooms-start { margin-top: 0; }
-    .print-room {
-      break-inside: avoid-page;
-      page-break-inside: avoid;
-      margin-bottom: 0;
-      border: 1px solid #d1d5db;
-      border-radius: 10px;
-      overflow: hidden;
-      background: #ffffff;
-      display: flex;
-      flex-direction: column;
-      min-height: 276mm;
-      page-break-after: always;
-      break-after: page;
-    }
-    .print-room:last-child { page-break-after: auto; }
-    .print-room-head { padding: 10px 12px; background: #eff6ff; border-bottom: 1px solid #dbeafe; }
-    .print-room-name { font-size: 16px; font-weight: 700; margin-bottom: 2px; }
-    .print-room-note { font-size: 11px; color: #4b5563; white-space: pre-wrap; }
-    .print-photos { display: flex; flex: 1; padding: 6mm; align-items: stretch; }
-    .print-photo-item { border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; background: white; width: 100%; flex: 1; display: flex; flex-direction: column; }
-    .print-photo-item img {
-      display: block; width: 100%; height: calc(100% - 20mm); min-height: 210mm; max-height: 235mm; object-fit: contain; object-position: center; background: #f3f4f6; padding: 2mm; flex: 1;
-    }
-    .print-photo-caption { font-size: 11px; line-height: 1.35; padding: 6px 8px 8px; min-height: 14mm; white-space: pre-wrap; }
-    .toolbar {
-      position: sticky; top: 0; z-index: 10; display: flex; gap: 10px; justify-content: center; padding: 12px; background: rgba(243,244,246,0.96); border-bottom: 1px solid #d1d5db;
-    }
-    .toolbar button {
-      border: 0; border-radius: 12px; padding: 12px 16px; cursor: pointer; font-size: 15px; font-weight: bold; background: linear-gradient(135deg, #5eead4, #60a5fa); color: #07111f;
-    }
-    .toolbar .secondary { background: #e5e7eb; color: #111827; }
-    @media (max-width: 900px) {
-      .page-wrap { padding: 0; }
-      .print-sheet { width: 100%; min-height: auto; padding: 10mm 8mm; box-shadow: none; }
-      .print-cover-grid { grid-template-columns: 1fr; }
-      .print-room { min-height: auto; }
-    }
-    @media print {
-      html, body { background: #fff !important; }
-      .toolbar { display: none !important; }
-      .page-wrap { padding: 0; }
-      .print-sheet { width: 100%; min-height: auto; margin: 0; box-shadow: none; }
-      .print-rooms-start { break-before: page; page-break-before: always; }
-      @page { size: A4; margin: 10mm; }
-    }
-  </style>
-</head>
-<body>
-  <div class="toolbar">
-    <button onclick="window.print()">Сохранить как PDF / Печать</button>
-    <button class="secondary" onclick="window.close()">Закрыть</button>
-  </div>
-  <div class="page-wrap">${sheetHtml}</div>
-  <script>
-    window.addEventListener('load', () => {
-      setTimeout(() => {
-        if (location.search.includes('autoprint=1')) {
-          window.print();
+
+    function wrapText(ctx, text, maxWidth) {
+      const words = String(text || '').split(/\s+/).filter(Boolean);
+      if (!words.length) return [''];
+      const lines = [];
+      let current = words[0];
+
+      for (let i = 1; i < words.length; i++) {
+        const test = current + ' ' + words[i];
+        if (ctx.measureText(test).width <= maxWidth) {
+          current = test;
+        } else {
+          lines.push(current);
+          current = words[i];
         }
-      }, 350);
-    });
-  <\/script>
-</body>
-</html>`;
+      }
+
+      lines.push(current);
+      return lines;
     }
 
-    async function openPrintableVersion() {
-      renderPrint();
-      await waitForImages(document.getElementById('printSheet'));
-      await wait(250);
+    function drawWrappedText(ctx, text, x, y, maxWidth, lineHeight, maxLines = Infinity) {
+      const paragraphs = String(text || '').split('\n');
+      const rendered = [];
 
-      const html = buildPrintableHtml();
-      const blob = new Blob([html], { type: 'text/html' });
-      const fileName = `${sanitizeFileName(els.objectName.value)}_pdf.html`;
+      paragraphs.forEach((paragraph) => {
+        const lines = wrapText(ctx, paragraph, maxWidth);
+        if (!lines.length) {
+          rendered.push('');
+        } else {
+          rendered.push(...lines);
+        }
+      });
 
-      if (navigator.canShare && navigator.share) {
-        try {
-          const file = new File([blob], fileName, { type: 'text/html' });
-          if (navigator.canShare({ files: [file] })) {
-            await navigator.share({
-              files: [file],
-              title: els.objectName.value || 'Фотоотчет',
-              text: 'Откройте файл и выберите печать или Сохранить как PDF.'
-            });
-            return;
+      const finalLines = rendered.slice(0, maxLines);
+      finalLines.forEach((line, index) => {
+        let value = line;
+        if (index === maxLines - 1 && rendered.length > maxLines) {
+          while (ctx.measureText(value + '…').width > maxWidth && value.length > 1) {
+            value = value.slice(0, -1);
           }
-        } catch (error) {
-          console.warn('Не удалось поделиться файлом:', error);
+          value += '…';
+        }
+        ctx.fillText(value, x, y + index * lineHeight);
+      });
+
+      return y + finalLines.length * lineHeight;
+    }
+
+    function canvasToJpegBytes(canvas, quality = 0.9) {
+      const dataUrl = canvas.toDataURL('image/jpeg', quality);
+      const base64 = dataUrl.split(',')[1];
+      const binary = atob(base64);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) {
+        bytes[i] = binary.charCodeAt(i);
+      }
+      return bytes;
+    }
+
+    function concatUint8Arrays(parts) {
+      const totalLength = parts.reduce((sum, part) => sum + part.length, 0);
+      const merged = new Uint8Array(totalLength);
+      let offset = 0;
+      for (const part of parts) {
+        merged.set(part, offset);
+        offset += part.length;
+      }
+      return merged;
+    }
+
+    function buildPdfFromJpegs(jpegPages, pageWidthPt = 595.28, pageHeightPt = 841.89) {
+      const encoder = new TextEncoder();
+      const objects = [];
+      const pageObjectNumbers = [];
+      const pageCount = jpegPages.length;
+      const pagesRootObjNum = 2;
+      let nextObjNum = 3;
+
+      for (let i = 0; i < pageCount; i++) {
+        const imageObjNum = nextObjNum++;
+        const contentObjNum = nextObjNum++;
+        const pageObjNum = nextObjNum++;
+        pageObjectNumbers.push(pageObjNum);
+
+        const jpg = jpegPages[i];
+        const imageHeader = encoder.encode(
+          `${imageObjNum} 0 obj\n<< /Type /XObject /Subtype /Image /Width ${jpg.width} /Height ${jpg.height} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpg.bytes.length} >>\nstream\n`
+        );
+        const imageFooter = encoder.encode(`\nendstream\nendobj\n`);
+        objects.push({ num: imageObjNum, bytes: concatUint8Arrays([imageHeader, jpg.bytes, imageFooter]) });
+
+        const contentStream = `q\n${pageWidthPt.toFixed(2)} 0 0 ${pageHeightPt.toFixed(2)} 0 0 cm\n/Im${i + 1} Do\nQ`;
+        const contentBytes = encoder.encode(
+          `${contentObjNum} 0 obj\n<< /Length ${contentStream.length} >>\nstream\n${contentStream}\nendstream\nendobj\n`
+        );
+        objects.push({ num: contentObjNum, bytes: contentBytes });
+
+        const pageBytes = encoder.encode(
+          `${pageObjNum} 0 obj\n<< /Type /Page /Parent ${pagesRootObjNum} 0 R /MediaBox [0 0 ${pageWidthPt.toFixed(2)} ${pageHeightPt.toFixed(2)}] /Resources << /XObject << /Im${i + 1} ${imageObjNum} 0 R >> >> /Contents ${contentObjNum} 0 R >>\nendobj\n`
+        );
+        objects.push({ num: pageObjNum, bytes: pageBytes });
+      }
+
+      const kids = pageObjectNumbers.map((n) => `${n} 0 R`).join(' ');
+      const pagesRootBytes = encoder.encode(
+        `2 0 obj\n<< /Type /Pages /Kids [${kids}] /Count ${pageCount} >>\nendobj\n`
+      );
+      const catalogBytes = encoder.encode(`1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n`);
+
+      const allObjects = [{ num: 1, bytes: catalogBytes }, { num: 2, bytes: pagesRootBytes }, ...objects].sort((a, b) => a.num - b.num);
+      const header = encoder.encode('%PDF-1.4\n%\xFF\xFF\xFF\xFF\n');
+      const parts = [header];
+      const offsets = [0];
+      let offset = header.length;
+
+      allObjects.forEach((obj) => {
+        offsets[obj.num] = offset;
+        parts.push(obj.bytes);
+        offset += obj.bytes.length;
+      });
+
+      const xrefOffset = offset;
+      const xrefLines = ['xref', `0 ${allObjects.length + 1}`, '0000000000 65535 f '];
+      for (let i = 1; i <= allObjects.length; i++) {
+        xrefLines.push(`${String(offsets[i]).padStart(10, '0')} 00000 n `);
+      }
+      const xrefBytes = encoder.encode(xrefLines.join('\n') + '\n');
+      parts.push(xrefBytes);
+
+      const trailerBytes = encoder.encode(
+        `trailer\n<< /Size ${allObjects.length + 1} /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`
+      );
+      parts.push(trailerBytes);
+
+      return new Blob(parts, { type: 'application/pdf' });
+    }
+
+    async function buildReportPdfBlob() {
+      renderPrint();
+
+      const PAGE_W = 1240;
+      const PAGE_H = 1754;
+      const MARGIN = 70;
+      const jpegPages = [];
+
+      function createPageCanvas() {
+        const canvas = document.createElement('canvas');
+        canvas.width = PAGE_W;
+        canvas.height = PAGE_H;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, PAGE_W, PAGE_H);
+        return { canvas, ctx };
+      }
+
+      function drawField(ctx, x, y, w, h, label, value) {
+        ctx.fillStyle = '#f9fafb';
+        ctx.strokeStyle = '#d9e0ea';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.roundRect(x, y, w, h, 16);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = '#6b7280';
+        ctx.font = 'bold 22px Arial';
+        ctx.fillText(label.toUpperCase(), x + 20, y + 36);
+
+        ctx.fillStyle = '#111827';
+        ctx.font = 'bold 28px Arial';
+        drawWrappedText(ctx, value || '—', x + 20, y + 78, w - 40, 34, 2);
+      }
+
+      {
+        const { canvas, ctx } = createPageCanvas();
+        ctx.fillStyle = '#111827';
+        ctx.font = 'bold 52px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('ФОТООТЧЕТ ПО ОБЪЕКТУ', PAGE_W / 2, 140);
+        ctx.textAlign = 'left';
+
+        ctx.strokeStyle = '#d1d5db';
+        ctx.lineWidth = 3;
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.roundRect(MARGIN, 200, PAGE_W - MARGIN * 2, PAGE_H - 290, 24);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = '#111827';
+        ctx.font = 'bold 40px Arial';
+        drawWrappedText(ctx, els.objectName.value.trim() || 'Объект не указан', MARGIN + 35, 270, PAGE_W - MARGIN * 2 - 70, 50, 3);
+
+        ctx.fillStyle = '#6b7280';
+        ctx.font = '28px Arial';
+        drawWrappedText(ctx, els.generalComment.value.trim() || 'Общее примечание не заполнено.', MARGIN + 35, 390, PAGE_W - MARGIN * 2 - 70, 38, 5);
+
+        const fieldY = 650;
+        const fieldW = (PAGE_W - MARGIN * 2 - 30) / 2;
+        const fieldH = 150;
+        drawField(ctx, MARGIN + 0, fieldY, fieldW, fieldH, 'Адрес', els.objectAddress.value.trim() || '—');
+        drawField(ctx, MARGIN + fieldW + 30, fieldY, fieldW, fieldH, 'Дата отчета', formatDate(els.reportDate.value));
+        drawField(ctx, MARGIN + 0, fieldY + fieldH + 24, fieldW, fieldH, 'Исполнитель', els.contractor.value.trim() || '—');
+        drawField(ctx, MARGIN + fieldW + 30, fieldY + fieldH + 24, fieldW, fieldH, 'Заказчик', els.customer.value.trim() || '—');
+
+        ctx.fillStyle = '#9ca3af';
+        ctx.font = '24px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('Фотоотчет начинается со второй страницы', PAGE_W / 2, PAGE_H - 80);
+        ctx.textAlign = 'left';
+
+        jpegPages.push({ bytes: canvasToJpegBytes(canvas, 0.9), width: canvas.width, height: canvas.height });
+      }
+
+      for (const room of state.rooms) {
+        if (!room.photos.length) {
+          const { canvas, ctx } = createPageCanvas();
+          ctx.fillStyle = '#eff6ff';
+          ctx.fillRect(MARGIN, MARGIN, PAGE_W - MARGIN * 2, 170);
+          ctx.strokeStyle = '#dbeafe';
+          ctx.lineWidth = 2;
+          ctx.strokeRect(MARGIN, MARGIN, PAGE_W - MARGIN * 2, 170);
+          ctx.fillStyle = '#111827';
+          ctx.font = 'bold 40px Arial';
+          drawWrappedText(ctx, room.name || 'Без названия', MARGIN + 24, MARGIN + 56, PAGE_W - MARGIN * 2 - 48, 46, 2);
+          ctx.fillStyle = '#4b5563';
+          ctx.font = '28px Arial';
+          drawWrappedText(ctx, room.comment || 'Без комментария', MARGIN + 24, MARGIN + 112, PAGE_W - MARGIN * 2 - 48, 34, 3);
+          ctx.fillStyle = '#6b7280';
+          ctx.font = '32px Arial';
+          ctx.textAlign = 'center';
+          ctx.fillText('Фотографии не добавлены', PAGE_W / 2, PAGE_H / 2);
+          ctx.textAlign = 'left';
+          jpegPages.push({ bytes: canvasToJpegBytes(canvas, 0.9), width: canvas.width, height: canvas.height });
+          continue;
+        }
+
+        for (const photo of room.photos) {
+          const { canvas, ctx } = createPageCanvas();
+
+          ctx.fillStyle = '#eff6ff';
+          ctx.fillRect(MARGIN, MARGIN, PAGE_W - MARGIN * 2, 170);
+          ctx.strokeStyle = '#dbeafe';
+          ctx.lineWidth = 2;
+          ctx.strokeRect(MARGIN, MARGIN, PAGE_W - MARGIN * 2, 170);
+
+          ctx.fillStyle = '#111827';
+          ctx.font = 'bold 40px Arial';
+          drawWrappedText(ctx, room.name || 'Без названия', MARGIN + 24, MARGIN + 56, PAGE_W - MARGIN * 2 - 48, 46, 2);
+          ctx.fillStyle = '#4b5563';
+          ctx.font = '28px Arial';
+          drawWrappedText(ctx, room.comment || 'Без комментария', MARGIN + 24, MARGIN + 112, PAGE_W - MARGIN * 2 - 48, 34, 3);
+
+          const img = await loadImage(photo.src);
+          const imgBoxX = MARGIN;
+          const imgBoxY = 290;
+          const imgBoxW = PAGE_W - MARGIN * 2;
+          const imgBoxH = 1260;
+
+          ctx.fillStyle = '#f3f4f6';
+          ctx.fillRect(imgBoxX, imgBoxY, imgBoxW, imgBoxH);
+          ctx.strokeStyle = '#e5e7eb';
+          ctx.lineWidth = 2;
+          ctx.strokeRect(imgBoxX, imgBoxY, imgBoxW, imgBoxH);
+
+          const scale = Math.min(imgBoxW / img.width, imgBoxH / img.height);
+          const drawW = img.width * scale;
+          const drawH = img.height * scale;
+          const drawX = imgBoxX + (imgBoxW - drawW) / 2;
+          const drawY = imgBoxY + (imgBoxH - drawH) / 2;
+          ctx.drawImage(img, drawX, drawY, drawW, drawH);
+
+          ctx.fillStyle = '#111827';
+          ctx.font = '26px Arial';
+          drawWrappedText(ctx, photo.caption || '', MARGIN + 10, PAGE_H - 110, PAGE_W - MARGIN * 2 - 20, 32, 2);
+
+          jpegPages.push({ bytes: canvasToJpegBytes(canvas, 0.9), width: canvas.width, height: canvas.height });
         }
       }
 
-      const url = URL.createObjectURL(blob);
-      const opened = window.open(`${url}?autoprint=1`, '_blank');
-
-      if (!opened) {
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = fileName;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        alert('На телефоне откройте сохраненный HTML-файл и выберите «Печать» или «Сохранить как PDF».');
-      }
-
-      setTimeout(() => URL.revokeObjectURL(url), 60000);
+      return buildPdfFromJpegs(jpegPages);
     }
 
     async function downloadPdf() {
       els.downloadPdfBtn.disabled = true;
-      els.downloadPdfBtn.textContent = 'Готовим версию для телефона...';
+      els.downloadPdfBtn.textContent = 'Готовим PDF...';
 
       try {
-        await openPrintableVersion();
+        const pdfBlob = await buildReportPdfBlob();
+        const pdfUrl = URL.createObjectURL(pdfBlob);
+        const opened = window.open(pdfUrl, '_blank');
+
+        if (!opened) {
+          const a = document.createElement('a');
+          a.href = pdfUrl;
+          a.download = `${sanitizeFileName(els.objectName.value)}.pdf`;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+        }
+
+        setTimeout(() => URL.revokeObjectURL(pdfUrl), 120000);
       } catch (error) {
-        console.warn('Ошибка подготовки печати:', error);
-        alert('Не удалось открыть PDF-версию. Проверьте, что фотографии загружены, и попробуйте снова.');
+        console.warn('Ошибка подготовки PDF:', error);
+        alert('Не удалось открыть PDF. Проверьте, что фото загружены, и попробуйте снова.');
       } finally {
         setTimeout(() => {
           els.downloadPdfBtn.disabled = false;
-          els.downloadPdfBtn.textContent = 'Открыть PDF на телефоне / Печать';
-        }, 600);
+          els.downloadPdfBtn.textContent = 'Открыть PDF на телефоне';
+        }, 500);
       }
     }
 

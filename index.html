@@ -529,7 +529,7 @@
           <button class="btn-secondary" id="demoBtn">Заполнить пример</button>
           <button class="btn-danger" id="clearBtn">Очистить всё</button>
         </div>
-        <p class="footer-note">Для телефона используйте кнопку «Открыть PDF / Печать» внизу страницы. В открывшемся окне выберите «Сохранить как PDF» или «Поделиться».</p>
+        <p class="footer-note">Для телефона используйте кнопку «Открыть PDF на телефоне / Печать» внизу страницы. В открывшемся окне выберите «Сохранить как PDF» или «Поделиться».</p>
       </div>
     </div>
 
@@ -1082,22 +1082,156 @@
       }).join('');
     }
 
-    async function downloadPdf() {
+    function buildPrintableHtml() {
+      const reportTitle = escapeHtml(els.objectName.value.trim() || 'ФОТООТЧЕТ');
+      const sheetHtml = document.getElementById('printSheet').outerHTML;
+
+      return `<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>${reportTitle}</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: #f3f4f6; font-family: Arial, Helvetica, sans-serif; }
+    .page-wrap { padding: 16px; }
+    .print-sheet {
+      background: white;
+      color: #111827;
+      width: 210mm;
+      min-height: 297mm;
+      margin: 0 auto;
+      padding: 12mm 10mm;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.12);
+    }
+    .print-title { text-align: center; font-size: 24px; font-weight: bold; margin-bottom: 6px; }
+    .print-cover { border: 1px solid #d1d5db; border-radius: 10px; padding: 16px; margin-bottom: 18px; break-inside: avoid; page-break-inside: avoid; }
+    .print-cover-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+    .cover-field { border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px 12px; background: #f9fafb; }
+    .cover-label { font-size: 11px; color: #6b7280; text-transform: uppercase; margin-bottom: 4px; }
+    .cover-value { font-size: 14px; font-weight: 600; word-break: break-word; }
+    .print-rooms-start { margin-top: 0; }
+    .print-room {
+      break-inside: avoid-page;
+      page-break-inside: avoid;
+      margin-bottom: 0;
+      border: 1px solid #d1d5db;
+      border-radius: 10px;
+      overflow: hidden;
+      background: #ffffff;
+      display: flex;
+      flex-direction: column;
+      min-height: 276mm;
+      page-break-after: always;
+      break-after: page;
+    }
+    .print-room:last-child { page-break-after: auto; }
+    .print-room-head { padding: 10px 12px; background: #eff6ff; border-bottom: 1px solid #dbeafe; }
+    .print-room-name { font-size: 16px; font-weight: 700; margin-bottom: 2px; }
+    .print-room-note { font-size: 11px; color: #4b5563; white-space: pre-wrap; }
+    .print-photos { display: flex; flex: 1; padding: 6mm; align-items: stretch; }
+    .print-photo-item { border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; background: white; width: 100%; flex: 1; display: flex; flex-direction: column; }
+    .print-photo-item img {
+      display: block; width: 100%; height: calc(100% - 20mm); min-height: 210mm; max-height: 235mm; object-fit: contain; object-position: center; background: #f3f4f6; padding: 2mm; flex: 1;
+    }
+    .print-photo-caption { font-size: 11px; line-height: 1.35; padding: 6px 8px 8px; min-height: 14mm; white-space: pre-wrap; }
+    .toolbar {
+      position: sticky; top: 0; z-index: 10; display: flex; gap: 10px; justify-content: center; padding: 12px; background: rgba(243,244,246,0.96); border-bottom: 1px solid #d1d5db;
+    }
+    .toolbar button {
+      border: 0; border-radius: 12px; padding: 12px 16px; cursor: pointer; font-size: 15px; font-weight: bold; background: linear-gradient(135deg, #5eead4, #60a5fa); color: #07111f;
+    }
+    .toolbar .secondary { background: #e5e7eb; color: #111827; }
+    @media (max-width: 900px) {
+      .page-wrap { padding: 0; }
+      .print-sheet { width: 100%; min-height: auto; padding: 10mm 8mm; box-shadow: none; }
+      .print-cover-grid { grid-template-columns: 1fr; }
+      .print-room { min-height: auto; }
+    }
+    @media print {
+      html, body { background: #fff !important; }
+      .toolbar { display: none !important; }
+      .page-wrap { padding: 0; }
+      .print-sheet { width: 100%; min-height: auto; margin: 0; box-shadow: none; }
+      .print-rooms-start { break-before: page; page-break-before: always; }
+      @page { size: A4; margin: 10mm; }
+    }
+  </style>
+</head>
+<body>
+  <div class="toolbar">
+    <button onclick="window.print()">Сохранить как PDF / Печать</button>
+    <button class="secondary" onclick="window.close()">Закрыть</button>
+  </div>
+  <div class="page-wrap">${sheetHtml}</div>
+  <script>
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        if (location.search.includes('autoprint=1')) {
+          window.print();
+        }
+      }, 350);
+    });
+  <\/script>
+</body>
+</html>`;
+    }
+
+    async function openPrintableVersion() {
       renderPrint();
+      await waitForImages(document.getElementById('printSheet'));
+      await wait(250);
+
+      const html = buildPrintableHtml();
+      const blob = new Blob([html], { type: 'text/html' });
+      const fileName = `${sanitizeFileName(els.objectName.value)}_pdf.html`;
+
+      if (navigator.canShare && navigator.share) {
+        try {
+          const file = new File([blob], fileName, { type: 'text/html' });
+          if (navigator.canShare({ files: [file] })) {
+            await navigator.share({
+              files: [file],
+              title: els.objectName.value || 'Фотоотчет',
+              text: 'Откройте файл и выберите печать или Сохранить как PDF.'
+            });
+            return;
+          }
+        } catch (error) {
+          console.warn('Не удалось поделиться файлом:', error);
+        }
+      }
+
+      const url = URL.createObjectURL(blob);
+      const opened = window.open(`${url}?autoprint=1`, '_blank');
+
+      if (!opened) {
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        alert('На телефоне откройте сохраненный HTML-файл и выберите «Печать» или «Сохранить как PDF».');
+      }
+
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
+    }
+
+    async function downloadPdf() {
       els.downloadPdfBtn.disabled = true;
-      els.downloadPdfBtn.textContent = 'Открываем печать...';
+      els.downloadPdfBtn.textContent = 'Готовим версию для телефона...';
 
       try {
-        await waitForImages(document.getElementById('printSheet'));
-        await wait(250);
-        window.print();
+        await openPrintableVersion();
       } catch (error) {
         console.warn('Ошибка подготовки печати:', error);
-        alert('Не удалось открыть окно печати. Проверьте, что фотографии загружены, затем попробуйте снова.');
+        alert('Не удалось открыть PDF-версию. Проверьте, что фотографии загружены, и попробуйте снова.');
       } finally {
         setTimeout(() => {
           els.downloadPdfBtn.disabled = false;
-          els.downloadPdfBtn.textContent = 'Открыть PDF / Печать';
+          els.downloadPdfBtn.textContent = 'Открыть PDF на телефоне / Печать';
         }, 600);
       }
     }

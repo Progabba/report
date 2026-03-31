@@ -4,8 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Генератор фотоотчета по объекту</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-  <style>
+    <style>
     :root {
       --bg: #0b1020;
       --panel: #121933;
@@ -316,13 +315,24 @@
       word-break: break-word;
     }
 
+    .print-rooms-start {
+      margin-top: 0;
+    }
+
     .print-room {
-      break-inside: avoid;
+      break-inside: avoid-page;
       page-break-inside: avoid;
-      margin-bottom: 18px;
+      margin-bottom: 0;
       border: 1px solid #d1d5db;
       border-radius: 10px;
       overflow: hidden;
+      background: #ffffff;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .print-room + .print-room {
+      margin-top: 0;
     }
 
     .print-room-head {
@@ -348,10 +358,10 @@
     }
 
     .print-photos {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 8px;
-      padding: 10px;
+      display: flex;
+      flex: 1;
+      padding: 6mm;
+      align-items: stretch;
     }
 
     .print-photo-item {
@@ -361,25 +371,33 @@
       break-inside: avoid;
       page-break-inside: avoid;
       background: white;
+      width: 100%;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
     }
 
     .print-photo-item img {
       display: block;
       width: 100%;
-      height: auto;
-      max-height: 95mm;
+      height: calc(100% - 20mm);
+      min-height: 210mm;
+      max-height: 235mm;
       object-fit: contain;
+      object-position: center;
       background: #f3f4f6;
-      padding: 2.5mm;
-      break-inside: avoid;
+      padding: 2mm;
+      break-inside: avoid-page;
       page-break-inside: avoid;
+      flex: 1;
     }
 
     .print-photo-caption {
-      font-size: 10px;
-      line-height: 1.3;
-      padding: 5px 6px;
-      min-height: 18px;
+      font-size: 11px;
+      line-height: 1.35;
+      padding: 6px 8px 8px;
+      min-height: 14mm;
       white-space: pre-wrap;
       break-inside: avoid;
       page-break-inside: avoid;
@@ -451,12 +469,42 @@
       .print-cover,
       .print-room-head,
       .print-room-note,
+      .print-photos,
       .print-photo-item,
       .print-photo-item img,
       .print-photo-caption {
-        break-inside: avoid !important;
+        break-inside: avoid-page !important;
         page-break-inside: avoid !important;
       }
+
+      .print-rooms-start {
+        break-before: page;
+        page-break-before: always;
+      }
+
+      .print-room {
+        page-break-before: auto;
+        page-break-after: always;
+        break-after: page;
+        min-height: 276mm;
+      }
+      .print-room-head {
+        flex: 0 0 auto;
+      }
+
+      .print-photos {
+        flex: 1 1 auto;
+        min-height: 0;
+      }
+
+      .print-photo-item {
+        min-height: 0;
+      }
+
+      .print-room:last-child {
+        page-break-after: auto;
+      }
+
 
       @page {
         size: A4;
@@ -481,7 +529,7 @@
           <button class="btn-secondary" id="demoBtn">Заполнить пример</button>
           <button class="btn-danger" id="clearBtn">Очистить всё</button>
         </div>
-        <p class="footer-note">Для телефона используйте кнопку «Скачать PDF» внизу страницы.</p>
+        <p class="footer-note">Для телефона используйте кнопку «Открыть PDF / Печать» внизу страницы. В открывшемся окне выберите «Сохранить как PDF» или «Поделиться».</p>
       </div>
     </div>
 
@@ -568,12 +616,12 @@
         </div>
       </div>
 
-      <div id="printRooms"></div>
+      <div id="printRooms" class="print-rooms-start"></div>
     </div>
 
     <div class="no-print" style="margin-top: 24px; text-align: center;">
       <button class="btn-primary" id="downloadPdfBtn" style="min-width: 280px; margin-bottom: 14px;">
-        Скачать PDF
+        Открыть PDF / Печать
       </button>
     </div>
 
@@ -1000,89 +1048,57 @@
         return;
       }
 
-      els.printRooms.innerHTML = state.rooms.map((room) => `
-        <div class="print-room">
-          <div class="print-room-head">
-            <div class="print-room-name">${escapeHtml(room.name)}</div>
-            <div class="print-room-note">${escapeHtml(room.comment || 'Без комментария')}</div>
-          </div>
-          <div class="print-photos">
-            ${room.photos.length ? room.photos.map((photo) => `
+      els.printRooms.innerHTML = state.rooms.flatMap((room) => {
+        if (!room.photos.length) {
+          return [`
+            <div class="print-room">
+              <div class="print-room-head">
+                <div class="print-room-name">${escapeHtml(room.name)}</div>
+                <div class="print-room-note">${escapeHtml(room.comment || 'Без комментария')}</div>
+              </div>
+              <div class="print-photos">
+                <div class="print-photo-item">
+                  <div class="print-photo-caption">Фотографии не добавлены.</div>
+                </div>
+              </div>
+            </div>
+          `];
+        }
+
+        return room.photos.map((photo) => `
+          <div class="print-room">
+            <div class="print-room-head">
+              <div class="print-room-name">${escapeHtml(room.name)}</div>
+              <div class="print-room-note">${escapeHtml(room.comment || 'Без комментария')}</div>
+            </div>
+            <div class="print-photos">
               <div class="print-photo-item">
                 <img src="${photo.src}" alt="${escapeHtml(photo.name)}" />
                 <div class="print-photo-caption">${escapeHtml(photo.caption || '')}</div>
               </div>
-            `).join('') : '<div class="print-photo-caption">Фотографии не добавлены.</div>'}
+            </div>
           </div>
-        </div>
-      `).join('');
+        `);
+      }).join('');
     }
 
     async function downloadPdf() {
-      const source = document.getElementById('printSheet');
-      if (!source) return;
-
+      renderPrint();
       els.downloadPdfBtn.disabled = true;
-      els.downloadPdfBtn.textContent = 'Готовим PDF...';
-
-      const clone = source.cloneNode(true);
-      clone.id = 'printSheetPdfClone';
-      clone.style.width = '794px';
-      clone.style.minHeight = 'auto';
-      clone.style.margin = '0';
-      clone.style.boxShadow = 'none';
-      clone.style.borderRadius = '0';
-      clone.style.position = 'fixed';
-      clone.style.left = '-10000px';
-      clone.style.top = '0';
-      clone.style.zIndex = '-1';
-      clone.style.background = '#ffffff';
-      clone.style.color = '#111827';
-      clone.style.visibility = 'visible';
-      clone.style.opacity = '1';
-      clone.style.transform = 'none';
-
-      document.body.appendChild(clone);
+      els.downloadPdfBtn.textContent = 'Открываем печать...';
 
       try {
-        await waitForImages(clone);
-        await wait(200);
-
-        const opt = {
-          margin: [6, 6, 6, 6],
-          filename: `${sanitizeFileName(els.objectName.value)}.pdf`,
-          image: { type: 'jpeg', quality: 0.82 },
-          html2canvas: {
-            scale: 0.85,
-            useCORS: true,
-            backgroundColor: '#ffffff',
-            logging: false,
-            scrollX: 0,
-            scrollY: 0,
-            windowWidth: 794,
-            width: 794,
-            height: clone.scrollHeight
-          },
-          jsPDF: {
-            unit: 'mm',
-            format: 'a4',
-            orientation: 'portrait',
-            compress: true,
-            precision: 12
-          },
-          pagebreak: {
-            mode: ['css', 'legacy', 'avoid-all']
-          }
-        };
-
-        await html2pdf().set(opt).from(clone).save();
+        await waitForImages(document.getElementById('printSheet'));
+        await wait(250);
+        window.print();
       } catch (error) {
-        console.warn('Ошибка сохранения PDF:', error);
-        alert('Не удалось сохранить PDF. Я уже уменьшил качество и размер фото, но если отчет очень большой, попробуйте сделать его в 2 частях или открыть страницу в Chrome на телефоне.');
+        console.warn('Ошибка подготовки печати:', error);
+        alert('Не удалось открыть окно печати. Проверьте, что фотографии загружены, затем попробуйте снова.');
       } finally {
-        clone.remove();
-        els.downloadPdfBtn.disabled = false;
-        els.downloadPdfBtn.textContent = 'Скачать PDF';
+        setTimeout(() => {
+          els.downloadPdfBtn.disabled = false;
+          els.downloadPdfBtn.textContent = 'Открыть PDF / Печать';
+        }, 600);
       }
     }
 
